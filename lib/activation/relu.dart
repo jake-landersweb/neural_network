@@ -1,5 +1,7 @@
 import 'package:flutter_nn/activation/root.dart';
 
+/// This is a very fast activation algorithm while still
+/// maintaining the ability to map non-linear functions
 class ActivationReLU extends Activation {
   @override
   List<List<double>> forward(List<List<double>> inputs) {
