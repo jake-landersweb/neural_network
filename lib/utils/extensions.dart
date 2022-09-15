@@ -36,6 +36,24 @@ extension List1DExtension on List<num> {
   num mean() {
     return sum() / length;
   }
+
+  /// Multiply all values by a number
+  List<num> multiply(num value) {
+    List<num> out = [];
+    for (var i in this) {
+      out.add(i * value);
+    }
+    return out;
+  }
+
+  /// Add all values by a number
+  List<num> add(num value) {
+    List<num> out = [];
+    for (var i in this) {
+      out.add(i + value);
+    }
+    return out;
+  }
 }
 
 extension List2DExtension on List<List<double>> {
@@ -55,6 +73,24 @@ extension List2DExtension on List<List<double>> {
     }
 
     return out;
+  }
+
+  /// Multiply all elements by a number
+  List<List<double>> multiply0D(double value) {
+    List<List<double>> total = [];
+    for (var row in this) {
+      total.add(row.multiply(value).map((e) => e.toDouble()).toList());
+    }
+    return total;
+  }
+
+  /// Add all elements by a value
+  List<List<double>> add0D(double value) {
+    List<List<double>> total = [];
+    for (var row in this) {
+      total.add(row.add(value) as List<double>);
+    }
+    return total;
   }
 
   /// For pretty printing the 2d array

@@ -56,3 +56,18 @@ List<List<double>> vectorSum2D1D(List<List<double>> list1, List<double> list2) {
 
   return out;
 }
+
+List<List<double>> vectorSum2D2D(
+    List<List<double>> list1, List<List<double>> list2) {
+  assert(list1.length == list2.length, "The length of the lists need to match");
+  List<List<double>> out = [];
+
+  for (var i = 0; i < list1.length; i++) {
+    List<double> temp = [];
+    for (var j = 0; j < list1[i].length; j++) {
+      temp.add(list1[i][j] + list2[i][j]);
+    }
+    out.add(temp);
+  }
+  return out;
+}
