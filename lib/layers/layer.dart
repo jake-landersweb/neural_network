@@ -1,14 +1,6 @@
-import 'package:flutter_nn/utils/root.dart';
+import 'package:flutter_nn/vector/root.dart';
 
 abstract class Layer {
-  void forward(List<List<double>> inputs);
-
-  List<List<double>> getWeights();
-  List<double> getBiases();
-  List<List<double>> getOutputs();
-
-  @override
-  String toString() {
-    return "Weights:\n${getWeights().pretty()}\nBiases:\n${getBiases()}\nOutput:\n${getOutputs()}";
-  }
+  void forward(Vector2 inputs);
+  void backward(Vector2 dvalues);
 }

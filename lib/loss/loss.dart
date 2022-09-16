@@ -1,11 +1,12 @@
-import 'package:flutter_nn/utils/root.dart';
+import 'package:flutter_nn/vector/root.dart';
 
 abstract class Loss {
-  List<double> forward(List<List<double>> predictions, List<int> labels);
+  Vector1 forward(Vector2 predictions, Vector1 labels);
+  void backward(Vector2 dvalues, Vector1 yTrue);
 
-  double calculate(List<List<double>> predictions, List<int> labels) {
+  double calculate(Vector2 predictions, Vector1 labels) {
     // get each sample loss value
-    List<double> loss = forward(predictions, labels);
+    Vector1 loss = forward(predictions, labels);
     // return the mean of the loss values
     return loss.mean().toDouble();
   }

@@ -1,15 +1,17 @@
 import 'dart:math';
-import 'package:flutter_nn/utils/root.dart';
+
+import 'package:flutter_nn/main.dart';
 
 class SpiralDataset {
   late List<List<double>> X;
   late List<int> y;
 
-  SpiralDataset(int points, int classes) {
-    _generateData(points, classes);
+  SpiralDataset(int points, int classes, {int seed = SEED}) {
+    _generateData(points, classes, seed);
   }
 
-  void _generateData(int points, int classes) {
+  void _generateData(int points, int classes, int seed) {
+    Random rng = Random(SEED);
     X = List<List<double>>.filled(points * classes, [0, 0]);
     y = List<int>.filled(points * classes, 0);
     int ix = 0;
@@ -32,6 +34,6 @@ class SpiralDataset {
 
   @override
   String toString() {
-    return "X: ${X.pretty()}\ny: $y";
+    return "X: $X\ny: $y";
   }
 }

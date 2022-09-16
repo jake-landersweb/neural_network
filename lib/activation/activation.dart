@@ -1,3 +1,6 @@
+import 'package:flutter_nn/vector/root.dart';
+
 abstract class Activation {
-  List<List<double>> forward(List<List<double>> inputs);
+  void forward(Vector2 inputs);
+  void backward(Vector2 dvalues);
 }
