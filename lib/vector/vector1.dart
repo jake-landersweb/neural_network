@@ -38,15 +38,14 @@ class Vector1 extends Vector<num> {
   @override
   String toString() => val.toString();
 
-  num mean() => sum().first / length;
+  num mean() => sum() / length;
 
-  @override
-  Vector sum({bool keepDims = true}) {
+  num sum({bool keepDims = true}) {
     num total = 0;
     for (var i in this) {
       total += i;
     }
-    return Vector1.from([total]);
+    return total;
   }
 
   num max() {

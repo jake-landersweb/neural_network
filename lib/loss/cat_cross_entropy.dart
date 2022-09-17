@@ -12,6 +12,7 @@ class LossCategoricalCrossentropy extends Loss {
     assert(predictions.length == labels.length,
         "The prediction length and label length need to match");
     Vector1 loss = Vector1.empty();
+
     for (var i = 0; i < predictions.length; i++) {
       // need to avoid taking the log of 0
       // make the max value 1 - 1e-7, and min value 1e-7
@@ -32,7 +33,7 @@ class LossCategoricalCrossentropy extends Loss {
     for (var i = 0; i < dvalues.length; i++) {
       yTrueOneHot.add(eyeTemp[yTrue[i] as int]);
     }
-    Vector2 dinputs = (yTrueOneHot / dvalues) as Vector2;
+    Vector2 dinputs = ((yTrueOneHot * -1) / dvalues) as Vector2;
     dinputs = (dinputs / samples) as Vector2;
 
     this.dinputs = dinputs;

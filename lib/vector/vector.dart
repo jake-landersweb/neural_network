@@ -5,13 +5,12 @@ abstract class Vector<T> implements Iterable {
   late List<T> val;
 
   // custom get methods
-  Vector sum({bool keepDims = true});
 
   /// Get the size of the vector in an array. If the
   /// vector is [Vector1], the list will contain 1
   /// element of the length. If the vector is [Vector2],
   /// the list will contain 2 elements, [rows, cols].
-  List<int> get size {
+  List<int> get shape {
     if (this is Vector1) {
       return [length];
     } else if (this is Vector2) {
@@ -24,9 +23,6 @@ abstract class Vector<T> implements Iterable {
   // get methods overriden
   @override
   int get length => val.length;
-
-  T operator [](int index) => val[index];
-  void operator []=(int index, T item) => val[index] = item;
 
   @override
   T get first => val.first;
@@ -63,9 +59,21 @@ abstract class Vector<T> implements Iterable {
 
   Vector subVector(int start, [int? end]) {
     if (this is Vector1) {
-      return Vector1.from(val.sublist(start, end) as List<num>);
+      return Vector1.from(val.sublist(
+          start,
+          end == null
+              ? null
+              : end > length
+                  ? length
+                  : end) as List<num>);
     } else if (this is Vector2) {
-      List<Vector1> temp = val.sublist(start, end) as List<Vector1>;
+      List<Vector1> temp = val.sublist(
+          start,
+          end == null
+              ? null
+              : end > length
+                  ? length
+                  : end) as List<Vector1>;
       Vector2 out = Vector2.empty();
       out.val = temp;
       return out;
@@ -236,6 +244,11 @@ abstract class Vector<T> implements Iterable {
     }
   }
 
+  // operators
+
+  T operator [](int index) => val[index];
+  void operator []=(int index, T item) => val[index] = item;
+
   Vector operator +(dynamic other) {
     // check if other is of type num
     if (other is num) {
@@ -306,19 +319,31 @@ abstract class Vector<T> implements Iterable {
         return list;
       } else {
         // both 2D
-        assert(
-          val.length == other.val.length,
-          "Both vectors need to be the same length",
-        );
-        assert(
-          (val[0] as Vector1).length == (other.val[0] as Vector1).length,
-          "The elements inside the vectors need to be the same length",
-        );
+        // assert(
+        //   length == (other as Vector2).length,
+        //   "Both vectors need to be the same length",
+        // );
+        // assert(
+        //   (val[0] as Vector1).length == (other.val[0] as Vector1).length,
+        //   "The elements inside the vectors need to be the same length",
+        // );
         Vector2 list = Vector2.empty();
         for (var i = 0; i < val.length; i++) {
           Vector1 temp = Vector1.empty();
           for (var j = 0; j < (val[i] as Vector1).length; j++) {
-            temp.add((val[i] as Vector1)[j] + (other.val[i] as Vector1)[j]);
+            if (other[0].length == 1) {
+              if (other.length == 1) {
+                temp.add((val[i] as Vector1)[j] + (other.val[0] as Vector1)[0]);
+              } else {
+                temp.add((val[i] as Vector1)[j] + (other.val[i] as Vector1)[0]);
+              }
+            } else {
+              if (other.length == 1) {
+                temp.add((val[i] as Vector1)[j] + (other.val[0] as Vector1)[j]);
+              } else {
+                temp.add((val[i] as Vector1)[j] + (other.val[i] as Vector1)[j]);
+              }
+            }
           }
           list.add(temp);
         }
@@ -403,15 +428,15 @@ abstract class Vector<T> implements Iterable {
           val.length == other.val.length,
           "Both vectors need to be the same length",
         );
-        assert(
-          (val[0] as Vector1).length == (other.val[0] as Vector1).length,
-          "The elements inside the vectors need to be the same length",
-        );
         Vector2 list = Vector2.empty();
         for (var i = 0; i < val.length; i++) {
           Vector1 temp = Vector1.empty();
           for (var j = 0; j < (val[i] as Vector1).length; j++) {
-            temp.add((val[i] as Vector1)[j] - (other.val[i] as Vector1)[j]);
+            if (other[0].length == 1) {
+              temp.add((val[i] as Vector1)[j] - (other.val[i] as Vector1)[0]);
+            } else {
+              temp.add((val[i] as Vector1)[j] - (other.val[i] as Vector1)[j]);
+            }
           }
           list.add(temp);
         }
@@ -430,13 +455,11 @@ abstract class Vector<T> implements Iterable {
         }
         return out;
       } else if (this is Vector2) {
-        Vector2 out = Vector2.empty();
-        for (Vector1 i in this) {
-          Vector1 temp = Vector1.empty();
-          for (num j in i) {
-            temp.add(j * other);
+        Vector2 out = Vector2.fromVector(this as Vector2);
+        for (var i = 0; i < length; i++) {
+          for (var j = 0; j < out[i].length; j++) {
+            out[i][j] *= other;
           }
-          out.add(temp);
         }
         return out;
       } else {
@@ -494,15 +517,15 @@ abstract class Vector<T> implements Iterable {
           val.length == other.val.length,
           "Both vectors need to be the same length",
         );
-        assert(
-          (val[0] as Vector1).length == (other.val[0] as Vector1).length,
-          "The elements inside the vectors need to be the same length",
-        );
         Vector2 list = Vector2.empty();
         for (var i = 0; i < val.length; i++) {
           Vector1 temp = Vector1.empty();
           for (var j = 0; j < (val[i] as Vector1).length; j++) {
-            temp.add((val[i] as Vector1)[j] * (other.val[i] as Vector1)[j]);
+            if (other[0].length == 1) {
+              temp.add((val[i] as Vector1)[j] * (other.val[i] as Vector1)[0]);
+            } else {
+              temp.add((val[i] as Vector1)[j] * (other.val[i] as Vector1)[j]);
+            }
           }
           list.add(temp);
         }
@@ -582,18 +605,18 @@ abstract class Vector<T> implements Iterable {
       } else {
         // both 2D
         assert(
-          val.length == other.val.length,
+          val.length == other.length,
           "Both vectors need to be the same length",
-        );
-        assert(
-          (val[0] as Vector1).length == (other.val[0] as Vector1).length,
-          "The elements inside the vectors need to be the same length",
         );
         Vector2 list = Vector2.empty();
         for (var i = 0; i < val.length; i++) {
           Vector1 temp = Vector1.empty();
           for (var j = 0; j < (val[i] as Vector1).length; j++) {
-            temp.add((val[i] as Vector1)[j] / (other.val[i] as Vector1)[j]);
+            if (other[0].length == 1) {
+              temp.add((val[i] as Vector1)[j] / (other.val[i] as Vector1)[0]);
+            } else {
+              temp.add((val[i] as Vector1)[j] / (other.val[i] as Vector1)[j]);
+            }
           }
           list.add(temp);
         }

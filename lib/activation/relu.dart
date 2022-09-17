@@ -12,17 +12,28 @@ class ActivationReLU extends Activation {
   void forward(Vector2 inputs) {
     // save inputs
     this.inputs = Vector2.fromVector(inputs);
+    // print(inputs.subVector(1, 2));
 
     // calculate the output values from the inputs
     output = maximum(0, inputs) as Vector2;
+    // print(output!.subVector(1, 2));
   }
 
   @override
   void backward(Vector2 dvalues) {
     // make a copy of dvalues since we will be modifying it
     dinputs = Vector2.fromVector(dvalues);
+    // print(dinputs!.subVector(1, 2));
 
     // zero the gradient where the values are negative
-    dinputs = minimum(0, dinputs!) as Vector2;
+    for (var i = 0; i < inputs!.length; i++) {
+      for (var j = 0; j < inputs![i].length; j++) {
+        if (inputs![i][j] < 0) {
+          dinputs![i][j] = 0;
+        }
+      }
+    }
+
+    // print(dinputs!.subVector(1, 2));
   }
 }

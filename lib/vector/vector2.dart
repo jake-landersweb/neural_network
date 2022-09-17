@@ -1,4 +1,4 @@
-import 'dart:math';
+import 'dart:math' as math;
 import 'package:flutter_nn/main.dart';
 
 import 'root.dart';
@@ -43,12 +43,16 @@ class Vector2 extends Vector<Vector1> {
   /// be used to set the value of the Random class from dart:math.
   Vector2.random(int rows, int cols,
       {double scaleFactor = 0.01, int seed = SEED}) {
-    Random rng = Random(seed);
+    math.Random rng = math.Random(seed);
     Vector2 list = Vector2.empty();
     for (var i = 0; i < rows; i++) {
       Vector1 temp = Vector1.empty();
       for (var j = 0; j < cols; j++) {
-        temp.add(rng.nextDouble() * scaleFactor);
+        var rand = rng.nextDouble() * scaleFactor;
+        if (rng.nextBool()) {
+          rand = -rand;
+        }
+        temp.add(rand);
       }
       list.add(temp);
     }
@@ -158,16 +162,44 @@ class Vector2 extends Vector<Vector1> {
   }
 
   @override
-  Vector sum({bool keepDims = true}) {
-    Vector1 out = Vector1.empty();
-    for (Vector1 i in this) {
-      out.add(i.sum().first);
-    }
+  Vector sum({int axis = 0, bool keepDims = true}) {
     if (keepDims) {
-      return Vector2.from([out.val]);
+      if (axis == 0) {
+        Vector1 temp = Vector1.empty();
+        for (Vector1 i in T) {
+          temp.add(i.sum());
+        }
+        Vector2 out = Vector2.from([temp.val]);
+        return out;
+      } else {
+        Vector2 out = Vector2.empty();
+        for (Vector1 i in this) {
+          out.add(Vector1.from([i.sum()]));
+        }
+        return out;
+      }
     } else {
+      Vector1 out = Vector1.empty();
+      for (Vector1 i in T) {
+        num v = 0;
+        for (var j in i) {
+          v += j;
+        }
+        out.add(v);
+      }
       return out;
     }
+    // Vector1 out = Vector1.empty();
+    // for (Vector1 i in this) {
+    //   out.add(i.sum().first);
+    // }
+    // if (keepDims) {
+    //   return Vector2.from([
+    //     for (var i in out.val) [i]
+    //   ]);
+    // } else {
+    //   return out;
+    // }
   }
 
   /// Convert the [Vector2] into a [Vector1] where the
@@ -178,6 +210,28 @@ class Vector2 extends Vector<Vector1> {
     Vector1 out = Vector1.empty();
     for (Vector1 i in this) {
       out.add(i.maxIndex());
+    }
+    return out;
+  }
+
+  Vector2 pow(num value) {
+    Vector2 out = Vector2.fromVector(this);
+
+    for (var i = 0; i < out.length; i++) {
+      for (var j = 0; j < out[i].length; j++) {
+        out[i][j] = math.pow(out[i][j], value);
+      }
+    }
+    return out;
+  }
+
+  Vector2 sqrt() {
+    Vector2 out = Vector2.fromVector(this);
+
+    for (var i = 0; i < out.length; i++) {
+      for (var j = 0; j < out[i].length; j++) {
+        out[i][j] = math.sqrt(out[i][j]);
+      }
     }
     return out;
   }

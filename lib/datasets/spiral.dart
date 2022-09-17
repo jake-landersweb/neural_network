@@ -24,8 +24,10 @@ class SpiralDataset {
         X[ix] = [r * sin(randomT * 2.5), r * cos(randomT * 2.5)];
         y[ix] = classNumber;
 
-        r += 1.0 / (points - 1);
-        t += 4.0 / (points - 1);
+        // r += 1.0 / (points - 1);
+        // t += 4.0 / (points - 1);
+        r += 1.0 / (points);
+        t += 4.0 / (points);
 
         ix++;
       }

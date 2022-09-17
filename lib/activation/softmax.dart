@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 import 'package:flutter_nn/activation/root.dart';
 // import 'package:flutter_nn/utils/root.dart';
@@ -17,13 +18,17 @@ class ActivationSoftMax extends Activation {
   void forward(Vector2 inputs) {
     // remember the inputs
     this.inputs = Vector2.fromVector(inputs);
-    // get exponent of all rows, divide by the sum of the row
-    List<List<double>> expValues = inputs.val
-        .map((row) => row.map((e) => exp(e - row.max())).toList())
-        .toList();
-    output = Vector2.from(expValues
-        .map((row) => row.map((e) => e / row.sum()).toList())
-        .toList());
+
+    Vector2 expValues = Vector2.empty();
+
+    for (var i = 0; i < inputs.length; i++) {
+      Vector1 temp = Vector1.empty();
+      for (var j = 0; j < inputs[i].length; j++) {
+        temp.add(exp(inputs[i][j] - inputs[i].max()));
+      }
+      expValues.add(temp);
+    }
+    output = expValues / expValues.sum(axis: 1, keepDims: true) as Vector2;
   }
 
   @override
@@ -32,15 +37,15 @@ class ActivationSoftMax extends Activation {
 
     for (var i = 0; i < dvalues.length; i++) {
       Vector2 singleOutput = output![i].toVector2();
-      Vector2 diagFlat = Vector2.diagonalFlat(output![i].val);
 
-      Vector2 jacobianMatrix =
-          diagFlat - (dot(singleOutput, singleOutput.T) as Vector2) as Vector2;
-      Vector1 temp = dot(dvalues[i], jacobianMatrix) as Vector1;
+      Vector2 jacobianMatrix = Vector2.diagonalFlat(output![i].val) -
+          (dot(singleOutput, singleOutput.T) as Vector2) as Vector2;
+      Vector1 temp = dot(jacobianMatrix, dvalues[i]) as Vector1;
       dinputs.add(temp);
     }
     // TODO -- find where I need to reverse the sign. It should not be here
-    this.dinputs = dinputs * -1 as Vector2;
+    // this.dinputs = dinputs * -1 as Vector2;
+    this.dinputs = dinputs;
   }
 }
 
