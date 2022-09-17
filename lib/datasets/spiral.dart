@@ -10,7 +10,12 @@ class SpiralDataset {
     _generateData(points, classes, seed);
   }
 
-  void _generateData(int points, int classes, int seed) {
+  void _generateData(
+    int points,
+    int classes,
+    int seed, {
+    double randomFactor = 0.005,
+  }) {
     Random rng = Random(SEED);
     X = List<List<double>>.filled(points * classes, [0, 0]);
     y = List<int>.filled(points * classes, 0);
@@ -20,7 +25,7 @@ class SpiralDataset {
       double t = classNumber * 4;
 
       while (r <= 1 && t <= (classNumber + 1) * 4) {
-        double randomT = t + rng.nextInt(points) * 0.008;
+        double randomT = t + rng.nextInt(points) * randomFactor;
         X[ix] = [r * sin(randomT * 2.5), r * cos(randomT * 2.5)];
         y[ix] = classNumber;
 

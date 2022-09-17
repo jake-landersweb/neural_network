@@ -35,9 +35,10 @@ class OptimizerAdam extends Optimizer {
     // initialize momentum and cache values
     layer.weightMomentums ??=
         Vector2(layer.weights.shape[0], layer.weights.shape[1]);
-    layer.weightCache ??= Vector2(layer.biases.shape[0], layer.biases.shape[1]);
-    layer.biasMomentums ??=
+    layer.weightCache ??=
         Vector2(layer.weights.shape[0], layer.weights.shape[1]);
+    layer.biasMomentums ??=
+        Vector2(layer.biases.shape[0], layer.biases.shape[1]);
     layer.biasCache ??= Vector2(layer.biases.shape[0], layer.biases.shape[1]);
 
     // update the momentum with the current gradient
@@ -49,9 +50,9 @@ class OptimizerAdam extends Optimizer {
     // get correct momentum
     // iterations is 0 at first pass, and we need to start with 1 here
     Vector2 weightMomentumsCorrected = layer.weightMomentums! /
-        (math.pow(1 - beta1, iterations + 1)) as Vector2;
+        (1 - math.pow(beta1, iterations + 1)) as Vector2;
     Vector2 biasMomentumsCorrected =
-        layer.biasMomentums! / (math.pow(1 - beta1, iterations + 1)) as Vector2;
+        layer.biasMomentums! / (1 - math.pow(beta1, iterations + 1)) as Vector2;
 
     // update the cache with the squared current gradients
     layer.weightCache = (layer.weightCache! * beta2) +
@@ -61,16 +62,11 @@ class OptimizerAdam extends Optimizer {
 
     // get corrected cache
     Vector2 weightCacheCorrected =
-        layer.weightCache! / (math.pow(1 - beta2, iterations + 1)) as Vector2;
+        layer.weightCache! / (1 - math.pow(beta2, iterations + 1)) as Vector2;
     Vector2 biasCacheCorrected =
-        layer.biasCache! / (math.pow(1 - beta2, iterations + 1)) as Vector2;
+        layer.biasCache! / (1 - math.pow(beta2, iterations + 1)) as Vector2;
 
     // vanilla sgd parameter update + normalization with square root cache
-    print(layer.weightCache!.shape);
-    print(weightCacheCorrected.shape);
-    // print((weightMomentumsCorrected * -currentLearningRate).shape);
-    print(weightCacheCorrected.sqrt().shape);
-    print((weightCacheCorrected.sqrt() + epsilon).shape);
     layer.weights = layer.weights +
         ((weightMomentumsCorrected * -currentLearningRate) /
             (weightCacheCorrected.sqrt() + epsilon)) as Vector2;

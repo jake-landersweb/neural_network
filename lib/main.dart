@@ -24,7 +24,7 @@ void main() {
   // var optimizer = OptimizerSGD(LR, decay: DECAY, momentum: MOMENTUM);
   // var optimizer = OptimizerAdaGrad(1, decay: 1e-4);
   // var optimizer = OptimizerRMSProp(learningRate: 0.02, decay: 1e-5, rho: 0.999);
-  var optimizer = OptimizerAdam(learningRate: 0.02, decay: 1e-5);
+  var optimizer = OptimizerAdam(learningRate: 0.05, decay: 1e-7);
 
   for (var epoch = 0; epoch < epochs; epoch++) {
     var temp = Vector2.from(dataset.X);
