@@ -10,10 +10,6 @@ import 'package:flutter_nn/vector/root.dart';
 /// classification output layer. Often used with a categorical
 /// cross-entropy loss function.
 class ActivationSoftMax extends Activation {
-  Vector2? inputs;
-  Vector2? output;
-  Vector2? dinputs;
-
   @override
   void forward(Vector2 inputs) {
     // remember the inputs
@@ -28,7 +24,8 @@ class ActivationSoftMax extends Activation {
       }
       expValues.add(temp);
     }
-    output = expValues / expValues.sum(axis: 1, keepDims: true) as Vector2;
+    output = expValues / (expValues.sum(axis: 1, keepDims: true) as Vector2).T
+        as Vector2;
   }
 
   @override

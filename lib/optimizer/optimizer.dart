@@ -1,6 +1,9 @@
 import 'package:flutter_nn/layers/root.dart';
 
 abstract class Optimizer {
+  late double learningRate;
+  late double currentLearningRate;
+
   /// To be called before each layer has been optimized
   void pre();
 

@@ -5,19 +5,18 @@ import 'package:flutter_nn/vector/root.dart';
 /// This optimizer needs a SMALL learning rate. The default
 /// used in most frameworks is 0.001
 class OptimizerRMSProp extends Optimizer {
-  late double learningRate;
-  late double currentLearningRate;
   late double decay;
   late int iterations;
   late double epsilon;
   late double rho;
 
   OptimizerRMSProp({
-    this.learningRate = 0.001,
+    double learningRate = 0.001,
     this.decay = 0,
     this.epsilon = 1e-7,
     this.rho = 0.9,
   }) {
+    this.learningRate = learningRate;
     currentLearningRate = learningRate;
     iterations = 0;
   }

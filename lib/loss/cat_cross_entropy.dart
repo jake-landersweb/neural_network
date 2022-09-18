@@ -5,8 +5,6 @@ import 'package:flutter_nn/vector/root.dart';
 /// To be used as the loss function for classification networks. These
 /// will usually end with an output layer using a softmax activation function.
 class LossCategoricalCrossentropy extends Loss {
-  Vector2? dinputs;
-
   @override
   Vector1 forward(Vector2 predictions, Vector1 labels) {
     assert(predictions.length == labels.length,

@@ -4,10 +4,6 @@ import 'package:flutter_nn/vector/root.dart';
 /// This is a very fast activation algorithm while still
 /// maintaining the ability to map non-linear functions
 class ActivationReLU extends Activation {
-  Vector2? inputs;
-  Vector2? output;
-  Vector2? dinputs;
-
   @override
   void forward(Vector2 inputs) {
     // save inputs
@@ -26,13 +22,15 @@ class ActivationReLU extends Activation {
     // print(dinputs!.subVector(1, 2));
 
     // zero the gradient where the values are negative
-    for (var i = 0; i < inputs!.length; i++) {
-      for (var j = 0; j < inputs![i].length; j++) {
-        if (inputs![i][j] < 0) {
-          dinputs![i][j] = 0;
-        }
-      }
-    }
+    dinputs =
+        dinputs!.replaceWhere((i, j) => inputs![i][j] < 0 ? 0 : dinputs![i][j]);
+    // for (var i = 0; i < inputs!.length; i++) {
+    //   for (var j = 0; j < inputs![i].length; j++) {
+    //     if (inputs![i][j] < 0) {
+    //       dinputs![i][j] = 0;
+    //     }
+    //   }
+    // }
 
     // print(dinputs!.subVector(1, 2));
   }

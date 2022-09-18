@@ -1,8 +1,10 @@
+import 'package:flutter_nn/activation/root.dart';
 import 'package:flutter_nn/vector/root.dart';
 
 abstract class Layer {
   late Vector2 weights;
   late Vector2 biases;
+  late Activation activation;
   Vector2? inputs;
   Vector2? output;
 
@@ -18,6 +20,12 @@ abstract class Layer {
   // weight cache values
   Vector2? weightCache;
   Vector2? biasCache;
+
+  // regularization values
+  late double weightRegL1;
+  late double weightRegL2;
+  late double biasRegL1;
+  late double biasRegL2;
 
   // required functional implementations
   void forward(Vector2 inputs);

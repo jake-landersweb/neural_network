@@ -1,25 +1,27 @@
 import 'package:flutter_nn/layers/root.dart';
+import 'package:flutter_nn/optimizer/optimizer.dart';
 import 'package:flutter_nn/vector/root.dart';
 
-class OptimizerSGD {
-  late double learningRate;
-  late double currentLearningRate;
+class OptimizerSGD extends Optimizer {
   late double decay;
   late int iterations;
   late double momentum;
 
-  OptimizerSGD(this.learningRate, {this.decay = 0, this.momentum = 0}) {
+  OptimizerSGD(double learningRate, {this.decay = 0, this.momentum = 0}) {
+    this.learningRate = learningRate;
     currentLearningRate = learningRate;
     iterations = 0;
   }
 
+  @override
   void pre() {
     if (decay != 0) {
       currentLearningRate = learningRate * (1 / (1 + decay * iterations));
     }
   }
 
-  void update(LayerDense layer) {
+  @override
+  void update(Layer layer) {
     late Vector2 weightUpdates;
     late Vector2 biasUpdates;
     if (momentum == 0) {

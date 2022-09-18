@@ -1,6 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+vec1 = np.array([[1, 2, 3], [4, 5, 6]])
+print(np.sum(vec1, axis=1))
+
+exit(0)
+
 X = [
     [0.0, 0.0],
     [0.0021090432314910747, 0.009775067091723806],

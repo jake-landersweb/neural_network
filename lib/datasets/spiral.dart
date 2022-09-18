@@ -6,17 +6,18 @@ class SpiralDataset {
   late List<List<double>> X;
   late List<int> y;
 
-  SpiralDataset(int points, int classes, {int seed = SEED}) {
-    _generateData(points, classes, seed);
+  SpiralDataset(int points, int classes,
+      {int seed = seed, double randomFactor = 0.005}) {
+    _generateData(points, classes, seed, randomFactor);
   }
 
   void _generateData(
     int points,
     int classes,
-    int seed, {
-    double randomFactor = 0.005,
-  }) {
-    Random rng = Random(SEED);
+    int seed,
+    double randomFactor,
+  ) {
+    Random rng = Random(seed);
     X = List<List<double>>.filled(points * classes, [0, 0]);
     y = List<int>.filled(points * classes, 0);
     int ix = 0;

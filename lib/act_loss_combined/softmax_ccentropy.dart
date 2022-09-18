@@ -6,10 +6,15 @@ import 'package:flutter_nn/vector/root.dart';
 /// class and the LossCategoricalCrossentropy into a single
 /// class to speed up computation.
 class ActivationSoftmaxLossCategoricalCrossentropy {
-  final ActivationSoftMax activation = ActivationSoftMax();
-  final LossCategoricalCrossentropy lossfxn = LossCategoricalCrossentropy();
+  late final ActivationSoftMax activation;
+  late final LossCategoricalCrossentropy lossfxn;
   Vector2? output;
   Vector2? dinputs;
+
+  ActivationSoftmaxLossCategoricalCrossentropy() {
+    activation = ActivationSoftMax();
+    lossfxn = LossCategoricalCrossentropy();
+  }
 
   double forward(Vector2 inputs, Vector1 yTrue) {
     activation.forward(inputs);

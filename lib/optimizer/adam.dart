@@ -4,8 +4,6 @@ import 'package:flutter_nn/optimizer/optimizer.dart';
 import 'package:flutter_nn/vector/root.dart';
 
 class OptimizerAdam extends Optimizer {
-  late double learningRate;
-  late double currentLearningRate;
   late double decay;
   late int iterations;
   late double epsilon;
@@ -13,12 +11,13 @@ class OptimizerAdam extends Optimizer {
   late double beta2;
 
   OptimizerAdam({
-    this.learningRate = 0.001,
+    double learningRate = 0.001,
     this.decay = 0,
     this.epsilon = 1e-7,
     this.beta1 = 0.9,
     this.beta2 = 0.999,
   }) {
+    this.learningRate = learningRate;
     currentLearningRate = learningRate;
     iterations = 0;
   }

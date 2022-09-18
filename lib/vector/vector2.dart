@@ -42,7 +42,7 @@ class Vector2 extends Vector<Vector1> {
   /// random values multipled by [scaleFactor]. [seed] can
   /// be used to set the value of the Random class from dart:math.
   Vector2.random(int rows, int cols,
-      {double scaleFactor = 0.01, int seed = SEED}) {
+      {double scaleFactor = 0.01, int seed = seed}) {
     math.Random rng = math.Random(seed);
     Vector2 list = Vector2.empty();
     for (var i = 0; i < rows; i++) {
@@ -111,6 +111,16 @@ class Vector2 extends Vector<Vector1> {
     val = out.val;
   }
 
+  /// Create a vector of the same shape as the passed [vec]
+  /// filled with the value of [fill].
+  Vector2.like(Vector2 vec, {num fill = 0}) {
+    List<Vector1> out = [];
+    for (Vector1 i in vec) {
+      out.add(Vector1.like(i, fill: fill));
+    }
+    val = out;
+  }
+
   @override
   String toString({int precision = 6}) {
     String calc(Vector2 list, bool exp, int startIndex) {
@@ -162,44 +172,77 @@ class Vector2 extends Vector<Vector1> {
   }
 
   @override
-  Vector sum({int axis = 0, bool keepDims = true}) {
-    if (keepDims) {
-      if (axis == 0) {
-        Vector1 temp = Vector1.empty();
-        for (Vector1 i in T) {
-          temp.add(i.sum());
+  dynamic sum({int? axis, bool keepDims = false}) {
+    if (axis == null) {
+      num out = 0;
+      // sum up all values in 2d vector
+      for (Vector1 i in this) {
+        for (num j in i) {
+          out += j;
         }
-        Vector2 out = Vector2.from([temp.val]);
-        return out;
+      }
+      if (keepDims) {
+        return Vector2.from([
+          [out]
+        ]);
       } else {
-        Vector2 out = Vector2.empty();
-        for (Vector1 i in this) {
-          out.add(Vector1.from([i.sum()]));
-        }
         return out;
       }
     } else {
+      // find out which axis to
       Vector1 out = Vector1.empty();
-      for (Vector1 i in T) {
-        num v = 0;
-        for (var j in i) {
-          v += j;
+      if (axis == 0) {
+        for (Vector1 i in T) {
+          out.add(i.sum());
         }
-        out.add(v);
+      } else {
+        for (Vector1 i in this) {
+          out.add(i.sum());
+        }
       }
-      return out;
+      if (keepDims) {
+        return Vector2.from([out.val]);
+      } else {
+        return out;
+      }
     }
-    // Vector1 out = Vector1.empty();
-    // for (Vector1 i in this) {
-    //   out.add(i.sum().first);
-    // }
+
     // if (keepDims) {
-    //   return Vector2.from([
-    //     for (var i in out.val) [i]
-    //   ]);
+    //   if (axis == 0) {
+    //     Vector1 temp = Vector1.empty();
+    //     for (Vector1 i in T) {
+    //       temp.add(i.sum());
+    //     }
+    //     Vector2 out = Vector2.from([temp.val]);
+    //     return out;
+    //   } else {
+    //     Vector2 out = Vector2.empty();
+    //     for (Vector1 i in this) {
+    //       out.add(Vector1.from([i.sum()]));
+    //     }
+    //     print(out.shape);
+    //     return out;
+    //   }
     // } else {
+    //   Vector1 out = Vector1.empty();
+    //   for (Vector1 i in T) {
+    //     num v = 0;
+    //     for (var j in i) {
+    //       v += j;
+    //     }
+    //     out.add(v);
+    //   }
     //   return out;
     // }
+  }
+
+  /// Get absolute value of all nums in 2D vector
+  Vector2 abs() {
+    Vector2 out = Vector2.empty();
+    for (Vector1 i in this) {
+      out.add(i.abs());
+    }
+    return out;
   }
 
   /// Convert the [Vector2] into a [Vector1] where the
@@ -231,6 +274,18 @@ class Vector2 extends Vector<Vector1> {
     for (var i = 0; i < out.length; i++) {
       for (var j = 0; j < out[i].length; j++) {
         out[i][j] = math.sqrt(out[i][j]);
+      }
+    }
+    return out;
+  }
+
+  /// Return a vector where all values equal
+  /// the result from the [logic] function
+  Vector2 replaceWhere(num Function(int i, int j) logic) {
+    Vector2 out = Vector2.like(this);
+    for (int i = 0; i < length; i++) {
+      for (int j = 0; j < this[i].length; j++) {
+        out[i][j] = logic(i, j);
       }
     }
     return out;

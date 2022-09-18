@@ -3,13 +3,12 @@ import 'package:flutter_nn/optimizer/optimizer.dart';
 import 'package:flutter_nn/vector/root.dart';
 
 class OptimizerAdaGrad extends Optimizer {
-  late double learningRate;
-  late double currentLearningRate;
   late double decay;
   late int iterations;
   late double epsilon;
 
-  OptimizerAdaGrad(this.learningRate, {this.decay = 0, this.epsilon = 1e-7}) {
+  OptimizerAdaGrad(double learningRate, {this.decay = 0, this.epsilon = 1e-7}) {
+    this.learningRate = learningRate;
     currentLearningRate = learningRate;
     iterations = 0;
   }
