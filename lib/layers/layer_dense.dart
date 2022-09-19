@@ -62,7 +62,7 @@ class LayerDense extends Layer {
       dbiases = dbiases! + (dL1 * biasRegL1) as Vector2;
     }
     if (biasRegL2 > 0) {
-      dbiases = dbiases! * (biases * (2 * biasRegL2)) as Vector2;
+      dbiases = dbiases! + (biases * (2 * biasRegL2)) as Vector2;
     }
 
     // gradients on values

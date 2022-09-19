@@ -328,6 +328,7 @@ abstract class Vector<T> implements Iterable {
         //   "The elements inside the vectors need to be the same length",
         // );
         Vector2 list = Vector2.empty();
+
         for (var i = 0; i < val.length; i++) {
           Vector1 temp = Vector1.empty();
           for (var j = 0; j < (val[i] as Vector1).length; j++) {

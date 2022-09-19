@@ -2,7 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 vec1 = np.array([[1, 2, 3], [4, 5, 6]])
-print(np.sum(vec1, axis=1))
+vec2 = np.array([1, 2, 3, 4])
+print(vec1 + vec2)
 
 exit(0)
 
