@@ -3,6 +3,7 @@ import 'package:flutter_nn/loss/root.dart';
 import 'package:flutter_nn/vector/vector2.dart';
 import 'package:flutter_nn/vector/vector1.dart';
 
+// TODO -- This probably does not work, verify this works in binary classififation
 class LossBinaryCrossentropy extends Loss {
   @override
   Vector1 forward(Vector2 predictions, Vector1 labels) {

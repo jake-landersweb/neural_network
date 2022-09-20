@@ -10,102 +10,130 @@ import 'package:flutter_nn/vector/root.dart';
 const seed = 0;
 
 void main() {
-  train(1000);
-  // test a random point from a separate generation of data
-  SpiralDataset datasetTest = SpiralDataset(100, 3, seed: 2);
-  int randomIndex = Random(876586).nextInt(datasetTest.y.length);
-  testSingle(datasetTest.X[randomIndex][0], datasetTest.X[randomIndex][1],
-      datasetTest.y[randomIndex]);
+  SpiralDataset trainingData = SpiralDataset(100, 3);
+  SpiralDataset testingData = SpiralDataset(100, 3, seed: 2);
+  NeuralNetwork nn = NeuralNetwork(
+    layers: [
+      LayerDense(
+        2,
+        64,
+        activation: ActivationReLU(),
+        weightRegL2: 5e-4,
+        biasRegL2: 5e-4,
+      ),
+      LayerDense(64, 3, activation: ActivationSoftMax()),
+    ],
+    lossFunction: LossCategoricalCrossentropy(),
+    optimizer: OptimizerAdam(learningRate: 0.02, decay: 5e-7),
+  );
+  nn.forward(
+    epochs: 1000,
+    trainingData: Vector2.from(trainingData.X),
+    trainingLabels: Vector1.from(trainingData.y),
+  );
+  nn.test(
+    testingData: Vector2.from(testingData.X),
+    testingLabels: Vector1.from(testingData.y),
+  );
 }
 
-var dense1 = LayerDense(
-  2,
-  64,
-  activation: ActivationReLU(),
-  weightRegL2: 5e-4,
-  biasRegL2: 5e-4,
-);
-var dense2 = LayerDense(
-  64,
-  3,
-  activation: ActivationSoftMax(),
-);
-var lossFxn = LossCategoricalCrossentropy();
-var optimizer = OptimizerAdam(learningRate: 0.02, decay: 5e-7);
+class NeuralNetwork {
+  late List<Layer> layers;
+  late Loss lossFunction;
+  late Optimizer optimizer;
 
-void train(int epochs) async {
-  SpiralDataset dataset = SpiralDataset(100, 3);
+  NeuralNetwork({
+    required this.layers,
+    required this.lossFunction,
+    required this.optimizer,
+  }) : assert(layers.isNotEmpty, "Layers cannot be an empty list");
 
-  // train the model
-  for (var epoch = 0; epoch < epochs; epoch++) {
-    dense1.forward(Vector2.from(dataset.X));
-    dense2.forward(dense1.output!);
+  void forward({
+    required int epochs,
+    required Vector2 trainingData,
+    required Vector1 trainingLabels,
+    int printEvery = 100,
+    int? stepSize,
+  }) {
+    for (int epoch = 0; epoch < epochs; epoch++) {
+      // pass through layers
+      for (int i = 0; i < layers.length; i++) {
+        if (i == 0) {
+          layers[i].forward(trainingData);
+        } else {
+          layers[i].forward(layers[i - 1].output!);
+        }
+      }
+      // run through loss
+      var dataLoss =
+          lossFunction.calculate(layers.last.output!, trainingLabels);
+      double regLoss = 0;
+      for (int i = 0; i < layers.length; i++) {
+        regLoss += lossFunction.regularizationLoss(layers[i]);
+      }
+      var loss = dataLoss + regLoss;
 
-    var dataLoss = lossFxn.calculate(dense2.output!, Vector1.from(dataset.y));
-    var regLoss =
-        lossFxn.regularizationLoss(dense1) + lossFxn.regularizationLoss(dense2);
-    var loss = dataLoss + regLoss;
+      // calculate accuracy
+      var correct = 0;
+      for (var i = 0; i < trainingLabels.length; i++) {
+        if (layers.last.output![i].maxIndex() == trainingLabels[i]) {
+          correct += 1;
+        }
+      }
+      var accuracy = correct / trainingLabels.length;
 
-    // calculate accuracy
+      // print when specified
+      if (epoch % printEvery == 0) {
+        print(
+          "epoch: $epoch, acc: ${accuracy.toStringAsPrecision(3)}, " +
+              "loss: ${loss.toStringAsPrecision(3)}, " +
+              "(dataLoss: ${dataLoss.toStringAsPrecision(3)}, " +
+              "regLoss: ${regLoss.toStringAsPrecision(3)}), " +
+              "lr: ${optimizer.currentLearningRate.toStringAsPrecision(3)}",
+        );
+      }
+
+      // backwards pass
+      lossFunction.backward(layers.last.output!, trainingLabels);
+      // loop backwards through all layers
+      for (int i = layers.length - 1; i > -1; i--) {
+        if (i == layers.length - 1) {
+          layers[i].backward(lossFunction.dinputs!);
+        } else {
+          layers[i].backward(layers[i + 1].dinputs!);
+        }
+      }
+
+      // run optimizer
+      optimizer.pre();
+      for (int i = 0; i < layers.length; i++) {
+        optimizer.update(layers[i]);
+      }
+      optimizer.post();
+    }
+  }
+
+  void test({required Vector2 testingData, required Vector1 testingLabels}) {
+    // run through the model
+    for (int i = 0; i < layers.length; i++) {
+      if (i == 0) {
+        layers[i].forward(testingData);
+      } else {
+        layers[i].forward(layers[i - 1].output!);
+      }
+    }
+
+    // calulate loss
+    var loss2 = lossFunction.calculate(layers.last.output!, testingLabels);
     var correct = 0;
-    for (var i = 0; i < dataset.y.length; i++) {
-      if (dense2.output![i].maxIndex() == dataset.y[i]) {
+    for (var i = 0; i < testingLabels.length; i++) {
+      if (layers.last.output![i].maxIndex() == testingLabels[i]) {
         correct += 1;
       }
     }
-    var accuracy = correct / dataset.y.length;
+    var accuracy2 = correct / testingLabels.length;
 
-    // backwards pass
-    lossFxn.backward(dense2.output!, Vector1.from(dataset.y));
-    dense2.backward(lossFxn.dinputs!);
-    dense1.backward(dense2.dinputs!);
-
-    if (epoch % 100 == 0) {
-      print(
-        "epoch: $epoch, acc: ${accuracy.toStringAsPrecision(3)}, " +
-            "loss: ${loss.toStringAsPrecision(3)}, " +
-            "(dataLoss: ${dataLoss.toStringAsPrecision(3)}, " +
-            "regLoss: ${regLoss.toStringAsPrecision(3)}), " +
-            "lr: ${optimizer.currentLearningRate.toStringAsPrecision(3)}",
-      );
-    }
-
-    // update params with the optimizer
-    optimizer.pre();
-    optimizer.update(dense1);
-    optimizer.update(dense2);
-    optimizer.post();
+    print(
+        "validation, acc: ${accuracy2.toStringAsPrecision(3)}, loss: ${loss2.toStringAsPrecision(3)}");
   }
-}
-
-void testSingle(double x, double y, int correct) {
-  print("Testing: ($x, $y) :: $correct");
-  Vector2 datasetTest = Vector2.from([
-    [x, y]
-  ]);
-
-  dense1.forward(datasetTest);
-  dense2.forward(dense1.output!);
-
-  print(
-      "Predicted: ${dense2.output![0].maxIndex()} Actual: $correct, Confidence: ${(dense2.output![0].map((e) => "${(e * 100).toStringAsPrecision(4)}%"))}");
-}
-
-void testAll() {
-  SpiralDataset datasetTest = SpiralDataset(100, 3, seed: 2);
-
-  // // test the model
-  dense1.forward(Vector2.from(datasetTest.X));
-  dense2.forward(dense1.output!);
-  var loss2 = lossFxn.calculate(dense2.output!, Vector1.from(datasetTest.y));
-  var correct = 0;
-  for (var i = 0; i < datasetTest.y.length; i++) {
-    if (dense2.output![i].maxIndex() == datasetTest.y[i]) {
-      correct += 1;
-    }
-  }
-  var accuracy2 = correct / datasetTest.y.length;
-
-  print(
-      "validation, acc: ${accuracy2.toStringAsPrecision(3)}, loss: ${loss2.toStringAsPrecision(3)}");
 }
