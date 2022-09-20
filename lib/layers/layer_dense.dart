@@ -24,6 +24,45 @@ class LayerDense extends Layer {
   }
 
   @override
+  LayerDense.fromMap(Map<String, dynamic> map) {
+    Vector2 w = Vector2.empty();
+    for (var i in map['weights']) {
+      Vector1 temp = Vector1.empty();
+      for (var j in i) {
+        temp.add(j);
+      }
+      w.add(temp);
+    }
+    Vector2 b = Vector2.empty();
+    for (var i in map['biases']) {
+      Vector1 temp = Vector1.empty();
+      for (var j in i) {
+        temp.add(j);
+      }
+      b.add(temp);
+    }
+    weights = w;
+    biases = b;
+    switch (map['activation']) {
+      case "relu":
+        activation = ActivationReLU();
+        break;
+      case "sigmoid":
+        activation = ActivationSigmoid();
+        break;
+      case "softmax":
+        activation = ActivationSoftMax();
+        break;
+      default:
+        throw "Invalid activation function ${map['activation']}";
+    }
+    weightRegL1 = map['weightRegL1'];
+    weightRegL2 = map['weightRegL2'];
+    biasRegL1 = map["biasRegL1"];
+    biasRegL2 = map["biasRegL2"];
+  }
+
+  @override
   void forward(Vector2 inputs) {
     assert(inputs[0].length == weights.length,
         "The elements inside of inputs need to be of the same length as the weights");

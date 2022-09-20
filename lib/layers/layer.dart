@@ -28,6 +28,10 @@ abstract class Layer {
   late double biasRegL1;
   late double biasRegL2;
 
+  // constructors
+  Layer();
+  Layer.fromMap(Map<String, dynamic> map);
+
   // required functional implementations
   void forward(Vector2 inputs);
   void backward(Vector2 dvalues);

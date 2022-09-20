@@ -3,14 +3,27 @@ import 'package:flutter_nn/optimizer/optimizer.dart';
 import 'package:flutter_nn/vector/root.dart';
 
 class OptimizerAdaGrad extends Optimizer {
-  late double decay;
-  late int iterations;
   late double epsilon;
 
-  OptimizerAdaGrad(double learningRate, {this.decay = 0, this.epsilon = 1e-7}) {
+  @override
+  OptimizerAdaGrad(
+    double learningRate, {
+    double decay = 0,
+    this.epsilon = 1e-7,
+  }) {
     this.learningRate = learningRate;
     currentLearningRate = learningRate;
+    this.decay = decay;
     iterations = 0;
+  }
+
+  @override
+  OptimizerAdaGrad.fromMap(Map<String, dynamic> map) {
+    learningRate = map['learningRate'];
+    currentLearningRate = map['currentLearningRate'];
+    decay = map['decay'];
+    iterations = map['iterations'];
+    epsilon = map['epsilon'];
   }
 
   @override
@@ -44,7 +57,14 @@ class OptimizerAdaGrad extends Optimizer {
   }
 
   @override
-  String name() {
-    return "ada";
+  Map<String, dynamic> toMap() {
+    return {
+      "name": "ada",
+      "learningRate": learningRate,
+      "currentLearningRate": currentLearningRate,
+      "decay": decay,
+      "iterations": iterations,
+      "epsilon": epsilon,
+    };
   }
 }

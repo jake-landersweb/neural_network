@@ -3,14 +3,26 @@ import 'package:flutter_nn/optimizer/optimizer.dart';
 import 'package:flutter_nn/vector/root.dart';
 
 class OptimizerSGD extends Optimizer {
-  late double decay;
-  late int iterations;
   late double momentum;
 
-  OptimizerSGD(double learningRate, {this.decay = 0, this.momentum = 0}) {
+  OptimizerSGD(
+    double learningRate, {
+    double decay = 0,
+    this.momentum = 0,
+  }) {
     this.learningRate = learningRate;
+    this.decay = decay;
     currentLearningRate = learningRate;
     iterations = 0;
+  }
+
+  @override
+  OptimizerSGD.fromMap(Map<String, dynamic> map) {
+    learningRate = map['learningRate'];
+    currentLearningRate = map['currentLearningRate'];
+    iterations = map['iterations'];
+    decay = map['decay'];
+    momentum = map['momentum'];
   }
 
   @override
@@ -53,7 +65,14 @@ class OptimizerSGD extends Optimizer {
   }
 
   @override
-  String name() {
-    return "sgd";
+  Map<String, dynamic> toMap() {
+    return {
+      "name": "sgd",
+      "learningRate": learningRate,
+      "currentLearningRate": currentLearningRate,
+      "decay": decay,
+      "iterations": iterations,
+      "momentum": momentum,
+    };
   }
 }

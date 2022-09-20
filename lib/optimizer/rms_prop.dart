@@ -5,20 +5,29 @@ import 'package:flutter_nn/vector/root.dart';
 /// This optimizer needs a SMALL learning rate. The default
 /// used in most frameworks is 0.001
 class OptimizerRMSProp extends Optimizer {
-  late double decay;
-  late int iterations;
   late double epsilon;
   late double rho;
 
   OptimizerRMSProp({
     double learningRate = 0.001,
-    this.decay = 0,
+    double decay = 0,
     this.epsilon = 1e-7,
     this.rho = 0.9,
   }) {
     this.learningRate = learningRate;
+    this.decay = decay;
     currentLearningRate = learningRate;
     iterations = 0;
+  }
+
+  @override
+  OptimizerRMSProp.fromMap(Map<String, dynamic> map) {
+    learningRate = map['learningRate'];
+    currentLearningRate = map['currentLearningRate'];
+    iterations = map['iterations'];
+    decay = map['decay'];
+    epsilon = map['epsilon'];
+    rho = map['rho'];
   }
 
   @override
@@ -56,7 +65,15 @@ class OptimizerRMSProp extends Optimizer {
   }
 
   @override
-  String name() {
-    return "rms";
+  Map<String, dynamic> toMap() {
+    return {
+      "name": "rms",
+      "learningRate": learningRate,
+      "currentLearningRate": currentLearningRate,
+      "decay": decay,
+      "iterations": iterations,
+      "epsilon": epsilon,
+      "rho": rho,
+    };
   }
 }

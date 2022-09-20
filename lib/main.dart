@@ -11,10 +11,11 @@ import 'package:flutter_nn/loss/root.dart';
 import 'package:flutter_nn/optimizer/root.dart';
 import 'package:flutter_nn/vector/root.dart';
 
-const seed = 3333;
+const seed = 123;
 
 void main() {
-  mnist();
+  // mnist();
+  mnistLoadFromFile();
 }
 
 void mnist() async {
@@ -52,8 +53,20 @@ void mnist() async {
   //   testingData: Vector2.from(testingData.v1.sublist(0, 6000)),
   //   testingLabels: Vector1.from(testingData.v2.sublist(0, 6000)),
   // );
-  nn.testSingle(testingData.v1[3333], testingData.v2[3333]);
-  nn.saveModel("/Users/jakelanders/code/flutter_nn/lib/models/mnist1.json");
+  nn.testSingle(testingData.v1[123], testingData.v2[123]);
+  nn.saveModel();
+}
+
+void mnistLoadFromFile() async {
+  var mnist = Mnist();
+  NeuralNetwork nn = NeuralNetwork.fromFile(
+    "/Users/jakelanders/code/flutter_nn/lib/models/1663694682093.json.gz",
+  );
+  Tuple2<List<List<double>>, List<int>> testingData = await mnist.readTest();
+  // test all the labels
+  for (int i = 0; i < testingData.v1.length; i++) {
+    nn.testSingle(testingData.v1[i], testingData.v2[i]);
+  }
 }
 
 void spiralDataset() {
@@ -95,12 +108,61 @@ class NeuralNetwork {
   late Optimizer optimizer;
   late Accuracy accuracy;
 
+  /// Create a neural network with the list of Layers in [layers],
+  /// a [lossFunction], and an [optimizer].
   NeuralNetwork({
     required this.layers,
     required this.lossFunction,
     required this.optimizer,
   }) : assert(layers.isNotEmpty, "Layers cannot be an empty list") {
     accuracy = Accuracy();
+  }
+
+  /// Load a network state from a valid model filepath.
+  /// Will throw exceptions if the file is not formatted properly.
+  /// Use the `saveModel()` function to properly save the state of a model.
+  NeuralNetwork.fromFile(String filename) {
+    // add gzip extension if not passed, because this is how it saves
+    if (!filename.endsWith(".gz")) {
+      filename = filename + ".gz";
+    }
+    File file = File(filename);
+    // decompress and decode file
+    List<int> compressed = file.readAsBytesSync();
+    List<int> decompressed = gzip.decode(compressed);
+    String json = utf8.decode(decompressed);
+    // read as json
+    Map<String, dynamic> values = jsonDecode(json);
+    layers = [];
+    for (var i in values['layers']) {
+      layers.add(LayerDense.fromMap(i));
+    }
+    switch (values['lossFunction']) {
+      case "binary_ce":
+        lossFunction = LossBinaryCrossentropy();
+        break;
+      case "cat_ce":
+        lossFunction = LossCategoricalCrossentropy();
+        break;
+      default:
+        throw "Invalid loss function passed ${values['lossFunction']}";
+    }
+    switch (values['optimizer']['name']) {
+      case "ada":
+        optimizer = OptimizerAdaGrad.fromMap(values['optimizer']);
+        break;
+      case "adam":
+        optimizer = OptimizerAdam.fromMap(values['optimizer']);
+        break;
+      case "rms":
+        optimizer = OptimizerRMSProp.fromMap(values['optimizer']);
+        break;
+      case "sgd":
+        optimizer = OptimizerSGD.fromMap(values['optimizer']);
+        break;
+      default:
+        throw "Invalid optimizer passed: ${values['optimizer']}";
+    }
   }
 
   /// train the data with the supplied data
@@ -256,30 +318,64 @@ class NeuralNetwork {
     }
   }
 
-  /// test a single data point against the network
-  void testSingle(List<double> data, int label) {
+  /// test a single data point against the network. This will
+  /// print out the predicted label, the actual label, and the
+  /// percent confidence. You can optionally show all confidences
+  /// by setting [printAllConfidences] to true.
+  void testSingle(
+    List<double> data,
+    int label, {
+    bool printAllConfidences = false,
+  }) {
     var prediction = _forward(Vector2.from([data]));
-    print("Predicted: ${prediction[0].maxIndex()}, Actual: $label");
-    String conf = "";
-    for (int i = 0; i < prediction.shape[1]; i++) {
-      var pred = prediction[0][i] * 100;
-      conf += "[$i] = ${pred.toStringAsPrecision(4)}%, ";
+    String out =
+        "Predicted: ${prediction[0].maxIndex()}, Actual: $label, Confidence: ${(prediction[0].max() * 100).toStringAsPrecision(4)}%";
+    // add an incorrect label to easily identify mistakes
+    if (prediction[0].maxIndex() != label) {
+      out += " [INCORRECT]";
     }
-    print("Confidences:\n$conf");
+    print(out);
+    if (printAllConfidences) {
+      String conf = "";
+      for (int i = 0; i < prediction.shape[1]; i++) {
+        var pred = prediction[0][i] * 100;
+        conf += "[$i] = ${pred.toStringAsPrecision(4)}%, ";
+      }
+      print("Confidences:\n$conf");
+    }
   }
 
-  void saveModel(String filename) async {
-    List<Map<String, dynamic>> layerMaps = [];
-    for (Layer layer in layers) {
-      layerMaps.add(layer.toMap());
+  /// Save the model to a file. This file is encoded into json
+  /// format then encoded and written to a file. This file can be
+  /// used as an input to `NeuralNetwork.fromFile()`
+  Future<bool> saveModel() async {
+    try {
+      String filename =
+          "/Users/jakelanders/code/flutter_nn/lib/models/${DateTime.now().millisecondsSinceEpoch}.json.gz";
+      List<Map<String, dynamic>> layerMaps = [];
+      for (Layer layer in layers) {
+        layerMaps.add(layer.toMap());
+      }
+      Map<String, dynamic> model = {
+        "layers": layerMaps,
+        "lossFunction": lossFunction.name(),
+        "optimizer": optimizer.toMap(),
+      };
+      // convert to json
+      String json = jsonEncode(model);
+      // encode to utf-8
+      List<int> encoded = utf8.encode(json);
+      // compress
+      List<int> compressed = gzip.encode(encoded);
+      // create the file
+      File file = File(filename);
+      file = await file.create();
+      await file.writeAsBytes(compressed);
+      print("Successfully saved model to: $filename");
+      return true;
+    } catch (error, stacktrace) {
+      print("There was an issue saving the model: $e\n$stacktrace");
+      return false;
     }
-    Map<String, dynamic> model = {
-      "layers": layerMaps,
-      "lossFunction": lossFunction.name(),
-      "optimizer": optimizer.name(),
-    };
-    File file = File(filename);
-    file = await file.create();
-    await file.writeAsString(jsonEncode(model));
   }
 }

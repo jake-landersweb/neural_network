@@ -5,22 +5,32 @@ import 'package:flutter_nn/optimizer/optimizer.dart';
 import 'package:flutter_nn/vector/root.dart';
 
 class OptimizerAdam extends Optimizer {
-  late double decay;
-  late int iterations;
   late double epsilon;
   late double beta1;
   late double beta2;
 
+  @override
   OptimizerAdam({
     double learningRate = 0.001,
-    this.decay = 0,
+    double decay = 0,
     this.epsilon = 1e-7,
     this.beta1 = 0.9,
     this.beta2 = 0.999,
   }) {
     this.learningRate = learningRate;
     currentLearningRate = learningRate;
+    this.decay = decay;
     iterations = 0;
+  }
+  @override
+  OptimizerAdam.fromMap(Map<String, dynamic> map) {
+    learningRate = map['learningRate'];
+    currentLearningRate = map['currentLearningRate'];
+    iterations = map['iterations'];
+    decay = map['decay'];
+    epsilon = map['epsilon'];
+    beta1 = map['beta1'];
+    beta2 = map['beta2'];
   }
 
   @override
@@ -81,7 +91,16 @@ class OptimizerAdam extends Optimizer {
   }
 
   @override
-  String name() {
-    return "adam";
+  Map<String, dynamic> toMap() {
+    return {
+      "name": "adam",
+      "learningRate": learningRate,
+      "currentLearningRate": currentLearningRate,
+      "decay": decay,
+      "iterations": iterations,
+      "epsilon": epsilon,
+      "beta1": beta1,
+      "beta2": beta2,
+    };
   }
 }
