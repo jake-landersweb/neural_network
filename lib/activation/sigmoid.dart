@@ -7,21 +7,24 @@ class ActivationSigmoid extends Activation {
   @override
   void forward(Vector2 inputs) {
     this.inputs = inputs;
+    output = inputs.replaceWhere((i, j) => 1 / (1 + math.exp(-inputs[i][j])));
 
-    Vector2 out = Vector2.empty();
-    // run custom sigmoid activation function
-    for (Vector1 i in inputs) {
-      Vector1 temp = Vector1.empty();
-      for (num j in i) {
-        temp.add(1 / (1 + math.exp(-j)));
-      }
-      out.add(temp);
-    }
-    output = out;
+    // Vector2 out = Vector2.empty();
+    // // run custom sigmoid activation function
+    // for (Vector1 i in inputs) {
+    //   Vector1 temp = Vector1.empty();
+    //   for (num j in i) {
+    //     temp.add(1 / (1 + math.exp(-j)));
+    //   }
+    //   out.add(temp);
+    // }
+    // output = out;
   }
 
   @override
   void backward(Vector2 dvalues) {
-    dinputs = dvalues * ((output! - 1) * -1) * output as Vector2;
+    dinputs = dvalues *
+        (output!.replaceWhere((i, j) => 1 - output![i][j])) *
+        output as Vector2;
   }
 }
