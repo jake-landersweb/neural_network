@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print, prefer_interpolation_to_compose_strings, prefer_adjacent_string_concatenation
 import 'dart:math';
 import 'package:flutter_nn/activation/root.dart';
+import 'package:flutter_nn/datasets/mnist.dart';
 import 'package:flutter_nn/datasets/spiral.dart';
 import 'package:flutter_nn/extra/root.dart';
 import 'package:flutter_nn/layers/root.dart';
@@ -8,9 +9,51 @@ import 'package:flutter_nn/loss/root.dart';
 import 'package:flutter_nn/optimizer/root.dart';
 import 'package:flutter_nn/vector/root.dart';
 
-const seed = 0;
+const seed = 56;
 
 void main() {
+  mnist();
+}
+
+void mnist() async {
+  var mnist = Mnist();
+  Tuple2<List<List<double>>, List<int>> trainingData = await mnist.readTrain();
+
+  NeuralNetwork nn = NeuralNetwork(
+    layers: [
+      LayerDense(
+        28 * 28,
+        1000,
+        activation: ActivationReLU(),
+        weightRegL2: 5e-4,
+        biasRegL2: 5e-4,
+      ),
+      LayerDense(1000, 10, activation: ActivationSoftMax()),
+    ],
+    lossFunction: LossCategoricalCrossentropy(),
+    optimizer: OptimizerAdam(learningRate: 0.02, decay: 5e-7),
+    // optimizer: OptimizerSGD(0.01, momentum: 0.9),
+  );
+
+  nn.train(
+    epochs: 3,
+    batchSize: 100,
+    printEveryEpoch: 1,
+    printeveryStep: 1,
+    trainingData: Vector2.from(trainingData.v1.sublist(0, 1000)),
+    trainingLabels: Vector1.from(trainingData.v2.sublist(0, 1000)),
+  );
+  Tuple2<List<List<double>>, List<int>> testingData = await mnist.readTest();
+  // nn.test(
+  //   printEveryStep: 1,
+  //   batchSize: 1000,
+  //   testingData: Vector2.from(testingData.v1.sublist(0, 6000)),
+  //   testingLabels: Vector1.from(testingData.v2.sublist(0, 6000)),
+  // );
+  nn.testSingle(testingData.v1[2435], testingData.v2[2435]);
+}
+
+void spiralDataset() {
   SpiralDataset trainingData = SpiralDataset.shuffle(100, 3);
   SpiralDataset testingData = SpiralDataset.shuffle(100, 3);
 
@@ -57,6 +100,7 @@ class NeuralNetwork {
     accuracy = Accuracy();
   }
 
+  /// train the data with the supplied data
   void train({
     required int epochs,
     required Vector2 trainingData,
@@ -77,6 +121,7 @@ class NeuralNetwork {
     if (steps * actBatchSize < trainingData.shape[0]) {
       steps += 1;
     }
+    print("# Beginning training of network:");
 
     for (int epoch = 0; epoch < epochs; epoch++) {
       // reset accumulated values
@@ -90,7 +135,7 @@ class NeuralNetwork {
             step * actBatchSize, (step + 1) * actBatchSize) as Vector1;
 
         // run forward pass
-        var predictions = forward(batchData);
+        var predictions = _forward(batchData);
 
         var dataLoss = lossFunction.calculate(
           layers.last.output!,
@@ -101,7 +146,7 @@ class NeuralNetwork {
         var acc = accuracy.calculate(predictions, batchLabels);
 
         // backwards pass
-        backward(predictions, batchLabels);
+        _backward(predictions, batchLabels);
 
         // optimize
         optimizer.pre();
@@ -113,7 +158,7 @@ class NeuralNetwork {
         // print a summary
         if (printeveryStep != null && step % printeveryStep == 0) {
           print(
-              "step: $step, acc: ${acc.toStringAsPrecision(3)}, loss: ${dataLoss.toStringAsPrecision(3)}, lr: ${optimizer.currentLearningRate.toStringAsPrecision(3)}");
+              "step: ${step + 1}, acc: ${acc.toStringAsPrecision(3)}, loss: ${dataLoss.toStringAsPrecision(3)}, lr: ${optimizer.currentLearningRate.toStringAsPrecision(3)}");
         }
       }
 
@@ -123,12 +168,12 @@ class NeuralNetwork {
       if (printEveryEpoch != null &&
           (epoch % printEveryEpoch == 0 || epoch == epochs - 1)) {
         print(
-            "epoch: $epoch, acc: ${epochAcc.toStringAsPrecision(3)}, loss: ${epochLoss.toStringAsPrecision(3)}, lr: ${optimizer.currentLearningRate.toStringAsPrecision(3)}");
+            "# [epoch: ${epoch + 1}, acc: ${epochAcc.toStringAsPrecision(3)}, loss: ${epochLoss.toStringAsPrecision(3)}, lr: ${optimizer.currentLearningRate.toStringAsPrecision(3)}]");
       }
     }
   }
 
-  Vector2 forward(Vector2 trainingData) {
+  Vector2 _forward(Vector2 trainingData) {
     // pass through layers
     for (int i = 0; i < layers.length; i++) {
       if (i == 0) {
@@ -141,7 +186,7 @@ class NeuralNetwork {
     return layers.last.output!;
   }
 
-  void backward(Vector2 predictions, Vector1 trainingLabels) {
+  void _backward(Vector2 predictions, Vector1 trainingLabels) {
     // backwards pass
     lossFunction.backward(predictions, trainingLabels);
     // loop backwards through all layers
@@ -154,6 +199,7 @@ class NeuralNetwork {
     }
   }
 
+  /// Test a sequence of data in batches
   void test({
     required Vector2 testingData,
     required Vector1 testingLabels,
@@ -205,5 +251,17 @@ class NeuralNetwork {
             "validation, acc: ${accuracy.toStringAsPrecision(3)}, loss: ${loss.toStringAsPrecision(3)}");
       }
     }
+  }
+
+  /// test a single data point against the network
+  void testSingle(List<double> data, int label) {
+    var prediction = _forward(Vector2.from([data]));
+    print("Predicted: ${prediction[0].maxIndex()}, Actual: $label");
+    String conf = "";
+    for (int i = 0; i < prediction.shape[1]; i++) {
+      var pred = prediction[0][i] * 100;
+      conf += "[$i] = ${pred.toStringAsPrecision(4)}%, ";
+    }
+    print("Confidences:\n$conf");
   }
 }
