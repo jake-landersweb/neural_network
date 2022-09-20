@@ -34,4 +34,9 @@ class ActivationReLU extends Activation {
 
     // print(dinputs!.subVector(1, 2));
   }
+
+  @override
+  String name() {
+    return "relu";
+  }
 }

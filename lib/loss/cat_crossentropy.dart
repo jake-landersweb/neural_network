@@ -36,4 +36,9 @@ class LossCategoricalCrossentropy extends Loss {
 
     this.dinputs = dinputs;
   }
+
+  @override
+  String name() {
+    return "cat_ce";
+  }
 }

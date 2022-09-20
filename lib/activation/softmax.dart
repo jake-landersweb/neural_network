@@ -44,6 +44,11 @@ class ActivationSoftMax extends Activation {
     // this.dinputs = dinputs * -1 as Vector2;
     this.dinputs = dinputs;
   }
+
+  @override
+  String name() {
+    return "softmax";
+  }
 }
 
 extension _1D on List<num> {

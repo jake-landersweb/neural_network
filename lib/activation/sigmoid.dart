@@ -17,4 +17,9 @@ class ActivationSigmoid extends Activation {
         (output!.replaceWhere((i, j) => 1 - output![i][j])) *
         output as Vector2;
   }
+
+  @override
+  String name() {
+    return "sigmoid";
+  }
 }

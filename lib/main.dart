@@ -1,4 +1,6 @@
 // ignore_for_file: avoid_print, prefer_interpolation_to_compose_strings, prefer_adjacent_string_concatenation
+import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 import 'package:flutter_nn/activation/root.dart';
 import 'package:flutter_nn/datasets/mnist.dart';
@@ -9,7 +11,7 @@ import 'package:flutter_nn/loss/root.dart';
 import 'package:flutter_nn/optimizer/root.dart';
 import 'package:flutter_nn/vector/root.dart';
 
-const seed = 56;
+const seed = 3333;
 
 void main() {
   mnist();
@@ -50,7 +52,8 @@ void mnist() async {
   //   testingData: Vector2.from(testingData.v1.sublist(0, 6000)),
   //   testingLabels: Vector1.from(testingData.v2.sublist(0, 6000)),
   // );
-  nn.testSingle(testingData.v1[2435], testingData.v2[2435]);
+  nn.testSingle(testingData.v1[3333], testingData.v2[3333]);
+  nn.saveModel("/Users/jakelanders/code/flutter_nn/lib/models/mnist1.json");
 }
 
 void spiralDataset() {
@@ -263,5 +266,20 @@ class NeuralNetwork {
       conf += "[$i] = ${pred.toStringAsPrecision(4)}%, ";
     }
     print("Confidences:\n$conf");
+  }
+
+  void saveModel(String filename) async {
+    List<Map<String, dynamic>> layerMaps = [];
+    for (Layer layer in layers) {
+      layerMaps.add(layer.toMap());
+    }
+    Map<String, dynamic> model = {
+      "layers": layerMaps,
+      "lossFunction": lossFunction.name(),
+      "optimizer": optimizer.name(),
+    };
+    File file = File(filename);
+    file = await file.create();
+    await file.writeAsString(jsonEncode(model));
   }
 }

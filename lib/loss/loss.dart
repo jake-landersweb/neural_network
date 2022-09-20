@@ -61,4 +61,6 @@ abstract class Loss {
     accumulatedSum = 0;
     accumulatedCount = 0;
   }
+
+  String name();
 }

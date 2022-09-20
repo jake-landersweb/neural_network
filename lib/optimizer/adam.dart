@@ -79,4 +79,9 @@ class OptimizerAdam extends Optimizer {
   void post() {
     iterations += 1;
   }
+
+  @override
+  String name() {
+    return "adam";
+  }
 }

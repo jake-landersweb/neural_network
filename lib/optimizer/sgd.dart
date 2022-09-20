@@ -47,7 +47,13 @@ class OptimizerSGD extends Optimizer {
     layer.biases = layer.biases + biasUpdates as Vector2;
   }
 
+  @override
   void post() {
     iterations += 1;
+  }
+
+  @override
+  String name() {
+    return "sgd";
   }
 }

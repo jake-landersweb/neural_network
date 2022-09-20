@@ -12,4 +12,7 @@ abstract class Optimizer {
 
   /// To be called after all layers have been optimized
   void post();
+
+  /// get a string name of the optimizer
+  String name();
 }

@@ -42,4 +42,9 @@ class OptimizerAdaGrad extends Optimizer {
   void post() {
     iterations += 1;
   }
+
+  @override
+  String name() {
+    return "ada";
+  }
 }

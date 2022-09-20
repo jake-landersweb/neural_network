@@ -49,4 +49,9 @@ class LossBinaryCrossentropy extends Loss {
         dvalues[0].length as Vector2;
     this.dinputs = dinputs / dvalues.length as Vector2;
   }
+
+  @override
+  String name() {
+    return "binary_ce";
+  }
 }
