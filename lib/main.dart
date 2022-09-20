@@ -1,5 +1,5 @@
 // ignore_for_file: avoid_print, prefer_interpolation_to_compose_strings, prefer_adjacent_string_concatenation
-
+import 'dart:math';
 import 'package:flutter_nn/activation/root.dart';
 import 'package:flutter_nn/datasets/spiral.dart';
 import 'package:flutter_nn/layers/root.dart';
@@ -9,139 +9,14 @@ import 'package:flutter_nn/vector/root.dart';
 
 const seed = 0;
 
-// class NeuralNetwork {
-//   late List<Layer> layers;
-//   late Loss lossFxn;
-//   late Optimizer optimizer;
-//   late Vector2 trainingData;
-//   late Vector1 trainingLabels;
-//   late Vector2 testingData;
-//   late Vector1 testingLabels;
-
-//   NeuralNetwork({
-//     required this.layers,
-//     required this.lossFxn,
-//     required this.optimizer,
-//     required this.trainingData,
-//     required this.trainingLabels,
-//     required this.testingData,
-//     required this.testingLabels,
-//   });
-
-//   void train(int epochs, {int printEvery = 100}) {
-//     for (var epoch = 0; epoch < epochs; epoch++) {
-//       // run through all layers
-//       for (int i = 0; i < layers.length; i++) {
-//         if (i == 0) {
-//           // use data
-//           layers[i].forward(trainingData);
-//         } else {
-//           layers[i].forward(layers[i - 1].output!);
-//         }
-//       }
-
-//       var dataLoss = lossFxn.calculate(layers.last.output!, trainingLabels);
-//       var regLoss = 0.0;
-//       for (var layer in layers) {
-//         regLoss += lossFxn.regularizationLoss(layer);
-//       }
-//       var loss = dataLoss + regLoss;
-
-//       // calculate accuracy
-//       var correct = 0;
-//       for (var i = 0; i < trainingLabels.length; i++) {
-//         if (layers.last.output![i].maxIndex() == trainingLabels[i]) {
-//           correct += 1;
-//         }
-//       }
-//       var accuracy = correct / trainingData.length;
-
-//       if (epoch % printEvery == 0) {
-//         print(
-//           "epoch: $epoch, acc: ${accuracy.toStringAsPrecision(3)}, " +
-//               "loss: ${loss.toStringAsPrecision(3)}, " +
-//               "(dataLoss: ${dataLoss.toStringAsPrecision(3)}, " +
-//               "regLoss: ${regLoss.toStringAsPrecision(3)}), " +
-//               "lr: ${optimizer.currentLearningRate.toStringAsPrecision(3)}",
-//         );
-//       }
-
-//       // backward pass
-//       lossFxn.backward(layers.last.output!, trainingLabels);
-
-//       // reverse for loop
-//       for (int i = layers.length - 1; i > -1; i--) {
-//         if (i == layers.length - 1) {
-//           layers[i].backward(lossFxn.dinputs!);
-//         } else {
-//           layers[i].backward(layers[i + 1].dinputs!);
-//         }
-//       }
-
-//       // run through optimizer
-//       optimizer.pre();
-//       for (var layer in layers) {
-//         optimizer.update(layer);
-//       }
-//       optimizer.post();
-//     }
-//   }
-
-//   void test() {
-//     for (int i = 0; i < layers.length; i++) {
-//       if (i == 0) {
-//         // use data
-//         layers[i].forward(testingData);
-//       } else {
-//         layers[i].forward(layers[i - 1].output!);
-//       }
-//     }
-//     var dataLoss = lossFxn.calculate(layers.last.output!, testingLabels);
-//     var regLoss = 0.0;
-//     for (var layer in layers) {
-//       regLoss += lossFxn.regularizationLoss(layer);
-//     }
-//     var loss = dataLoss + regLoss;
-
-//     // calculate accuracy
-//     var correct = 0;
-//     for (var i = 0; i < testingLabels.length; i++) {
-//       if (layers.last.output![i].maxIndex() == testingLabels[i]) {
-//         correct += 1;
-//       }
-//     }
-//     var accuracy = correct / testingLabels.length;
-//     print("validation, acc: ${accuracy.toStringAsPrecision(3)}, " +
-//         "loss: ${loss.toStringAsPrecision(3)}, " +
-//         "(dataLoss: ${dataLoss.toStringAsPrecision(3)}, " +
-//         "regLoss: ${regLoss.toStringAsPrecision(3)})");
-//   }
-// }
-
 void main() {
-  // SpiralDataset training = SpiralDataset(100, 3);
-  // SpiralDataset testing = SpiralDataset(100, 3);
-  // NeuralNetwork nn = NeuralNetwork(
-  //   layers: [
-  //     LayerDense(2, 64, activation: ActivationReLU()),
-  //     LayerDense(64, 32, activation: ActivationReLU()),
-  //     LayerDense(32, 3, activation: ActivationSoftMax()),
-  //   ],
-  //   lossFxn: LossCategoricalCrossentropy(),
-  //   optimizer: OptimizerAdam(learningRate: 0.02, decay: 5e-7),
-  //   trainingData: Vector2.from(training.X),
-  //   trainingLabels: Vector1.from(training.y),
-  //   testingData: Vector2.from(testing.X),
-  //   testingLabels: Vector1.from(testing.y),
-  // );
-  // nn.train(500);
-  // nn.test();
-
   train(1000);
-  test();
+  // test a random point from a separate generation of data
+  SpiralDataset datasetTest = SpiralDataset(100, 3, seed: 2);
+  int randomIndex = Random(876586).nextInt(datasetTest.y.length);
+  testSingle(datasetTest.X[randomIndex][0], datasetTest.X[randomIndex][1],
+      datasetTest.y[randomIndex]);
 }
-
-SpiralDataset dataset = SpiralDataset(100, 3);
 
 var dense1 = LayerDense(
   2,
@@ -159,6 +34,8 @@ var lossFxn = LossCategoricalCrossentropy();
 var optimizer = OptimizerAdam(learningRate: 0.02, decay: 5e-7);
 
 void train(int epochs) async {
+  SpiralDataset dataset = SpiralDataset(100, 3);
+
   // train the model
   for (var epoch = 0; epoch < epochs; epoch++) {
     dense1.forward(Vector2.from(dataset.X));
@@ -201,8 +78,21 @@ void train(int epochs) async {
   }
 }
 
-void test() {
-  SpiralDataset datasetTest = SpiralDataset(100, 3);
+void testSingle(double x, double y, int correct) {
+  print("Testing: ($x, $y) :: $correct");
+  Vector2 datasetTest = Vector2.from([
+    [x, y]
+  ]);
+
+  dense1.forward(datasetTest);
+  dense2.forward(dense1.output!);
+
+  print(
+      "Predicted: ${dense2.output![0].maxIndex()} Actual: $correct, Confidence: ${(dense2.output![0].map((e) => "${(e * 100).toStringAsPrecision(4)}%"))}");
+}
+
+void testAll() {
+  SpiralDataset datasetTest = SpiralDataset(100, 3, seed: 2);
 
   // // test the model
   dense1.forward(Vector2.from(datasetTest.X));

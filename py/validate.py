@@ -1,9 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import math
 
 vec1 = np.array([[1, 2, 3], [4, 5, 6]])
-vec2 = np.array([1, 2, 3, 4])
-print(vec1 + vec2)
+print(np.mean(vec1))
+print(np.mean(vec1, axis=-1))
+
 
 exit(0)
 

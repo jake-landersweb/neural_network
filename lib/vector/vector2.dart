@@ -290,4 +290,23 @@ class Vector2 extends Vector<Vector1> {
     }
     return out;
   }
+
+  /// Take all values in the vector and raise [e] to the
+  /// power of the value
+  Vector2 exp() {
+    Vector2 out = Vector2.empty();
+    for (Vector1 i in this) {
+      out.add(i.exp());
+    }
+    return out;
+  }
+
+  /// take the natural log of all values in the vector
+  Vector2 log() {
+    Vector2 out = Vector2.empty();
+    for (Vector1 i in this) {
+      out.add(i.log());
+    }
+    return out;
+  }
 }

@@ -1,2 +1,3 @@
 export 'loss.dart';
-export 'cat_cross_entropy.dart';
+export 'cat_crossentropy.dart';
+export 'binary_crossentropy.dart';

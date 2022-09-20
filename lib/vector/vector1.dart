@@ -124,4 +124,22 @@ class Vector1 extends Vector<num> {
     }
     return out;
   }
+
+  /// Take all values and raise e to the power of the value
+  Vector1 exp() {
+    Vector1 out = Vector1.empty();
+    for (var i in this) {
+      out.add(math.exp(i));
+    }
+    return out;
+  }
+
+  // take the natural log of all values
+  Vector1 log() {
+    Vector1 out = Vector1.empty();
+    for (var i in this) {
+      out.add(math.log(i));
+    }
+    return out;
+  }
 }
