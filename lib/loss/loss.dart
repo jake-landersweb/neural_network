@@ -4,6 +4,8 @@ import 'package:flutter_nn/vector/root.dart';
 abstract class Loss {
   Vector1? loss;
   Vector2? dinputs;
+  num accumulatedSum = 0;
+  int accumulatedCount = 0;
 
   Vector1 forward(Vector2 predictions, Vector1 labels);
   void backward(Vector2 dvalues, Vector1 yTrue);
@@ -11,6 +13,11 @@ abstract class Loss {
   double calculate(Vector2 predictions, Vector1 labels) {
     // get each sample loss value
     loss = forward(predictions, labels);
+
+    // add accumulated sum of losses and sample count
+    accumulatedSum += loss!.sum();
+    accumulatedCount += loss!.length;
+
     // return the mean of the loss values
     return loss!.mean().toDouble();
   }
@@ -41,5 +48,17 @@ abstract class Loss {
     }
 
     return regLoss;
+  }
+
+  /// get accumulated loss value
+  double calculateAccumulated() {
+    var loss = accumulatedSum / accumulatedCount;
+    return loss;
+  }
+
+  /// reset the accumulated values after each pass
+  void newPass() {
+    accumulatedSum = 0;
+    accumulatedCount = 0;
   }
 }
