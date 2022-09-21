@@ -10,41 +10,60 @@ import 'package:flutter_nn/layers/root.dart';
 import 'package:flutter_nn/loss/root.dart';
 import 'package:flutter_nn/optimizer/root.dart';
 import 'package:flutter_nn/vector/root.dart';
+// import 'package:flutter_nn/views/root.dart';
+// import 'package:flutter/material.dart';
 
-const seed = 123;
+const seed = 9736;
 
 void main() {
-  // mnist();
-  mnistLoadFromFile();
+  // runApp(const App());
+  mnist();
 }
 
 void mnist() async {
   var mnist = Mnist();
-  Tuple2<List<List<double>>, List<int>> trainingData = await mnist.readTrain();
+  Tuple2<List<List<double>>, List<int>> trainingData =
+      await mnist.readTrainRandom();
 
   NeuralNetwork nn = NeuralNetwork(
     layers: [
       LayerDense(
         28 * 28,
-        1000,
+        300,
         activation: ActivationReLU(),
         weightRegL2: 5e-4,
         biasRegL2: 5e-4,
       ),
-      LayerDense(1000, 10, activation: ActivationSoftMax()),
+      LayerDense(300, 10, activation: ActivationSoftMax()),
     ],
     lossFunction: LossCategoricalCrossentropy(),
-    optimizer: OptimizerAdam(learningRate: 0.02, decay: 5e-7),
-    // optimizer: OptimizerSGD(0.01, momentum: 0.9),
+    optimizer: OptimizerAdam(learningRate: 0.005, decay: 5e-4),
+    // optimizer: OptimizerSGD(0.05, decay: 5e-7, momentum: 0.9),
   );
 
   nn.train(
-    epochs: 3,
-    batchSize: 100,
+    epochs: 1,
+    batchSize: 32,
     printEveryEpoch: 1,
-    printeveryStep: 1,
-    trainingData: Vector2.from(trainingData.v1.sublist(0, 1000)),
-    trainingLabels: Vector1.from(trainingData.v2.sublist(0, 1000)),
+    printeveryStep: 100,
+    trainingData: Vector2.from(trainingData.v1),
+    trainingLabels: Vector1.from(trainingData.v2),
+  );
+  Tuple2<List<List<double>>, List<int>> testingData =
+      await mnist.readTestRandom();
+  var totalAccuracy = nn.test(
+    printEveryStep: 100,
+    batchSize: 32,
+    testingData: Vector2.from(testingData.v1),
+    testingLabels: Vector1.from(testingData.v2),
+  );
+  nn.saveModel(accuracy: totalAccuracy);
+}
+
+void mnistLoadFromFile() async {
+  var mnist = Mnist();
+  NeuralNetwork nn = NeuralNetwork.fromFile(
+    "/Users/jakelanders/code/flutter_nn/lib/models/1663697265679.json.gz",
   );
   Tuple2<List<List<double>>, List<int>> testingData = await mnist.readTest();
   // nn.test(
@@ -53,17 +72,7 @@ void mnist() async {
   //   testingData: Vector2.from(testingData.v1.sublist(0, 6000)),
   //   testingLabels: Vector1.from(testingData.v2.sublist(0, 6000)),
   // );
-  nn.testSingle(testingData.v1[123], testingData.v2[123]);
-  nn.saveModel();
-}
-
-void mnistLoadFromFile() async {
-  var mnist = Mnist();
-  NeuralNetwork nn = NeuralNetwork.fromFile(
-    "/Users/jakelanders/code/flutter_nn/lib/models/1663694682093.json.gz",
-  );
-  Tuple2<List<List<double>>, List<int>> testingData = await mnist.readTest();
-  // test all the labels
+  // test all the labels single
   for (int i = 0; i < testingData.v1.length; i++) {
     nn.testSingle(testingData.v1[i], testingData.v2[i]);
   }
@@ -122,16 +131,48 @@ class NeuralNetwork {
   /// Will throw exceptions if the file is not formatted properly.
   /// Use the `saveModel()` function to properly save the state of a model.
   NeuralNetwork.fromFile(String filename) {
-    // add gzip extension if not passed, because this is how it saves
-    if (!filename.endsWith(".gz")) {
-      filename = filename + ".gz";
-    }
+    print("# [Loading model from file: $filename]");
     File file = File(filename);
     // decompress and decode file
     List<int> compressed = file.readAsBytesSync();
     List<int> decompressed = gzip.decode(compressed);
     String json = utf8.decode(decompressed);
     // read as json
+    Map<String, dynamic> values = jsonDecode(json);
+    layers = [];
+    for (var i in values['layers']) {
+      layers.add(LayerDense.fromMap(i));
+    }
+    switch (values['lossFunction']) {
+      case "binary_ce":
+        lossFunction = LossBinaryCrossentropy();
+        break;
+      case "cat_ce":
+        lossFunction = LossCategoricalCrossentropy();
+        break;
+      default:
+        throw "Invalid loss function passed ${values['lossFunction']}";
+    }
+    switch (values['optimizer']['name']) {
+      case "ada":
+        optimizer = OptimizerAdaGrad.fromMap(values['optimizer']);
+        break;
+      case "adam":
+        optimizer = OptimizerAdam.fromMap(values['optimizer']);
+        break;
+      case "rms":
+        optimizer = OptimizerRMSProp.fromMap(values['optimizer']);
+        break;
+      case "sgd":
+        optimizer = OptimizerSGD.fromMap(values['optimizer']);
+        break;
+      default:
+        throw "Invalid optimizer passed: ${values['optimizer']}";
+    }
+  }
+
+  NeuralNetwork.fromJson(dynamic json) {
+    print("# [Loading model from json]");
     Map<String, dynamic> values = jsonDecode(json);
     layers = [];
     for (var i in values['layers']) {
@@ -186,7 +227,7 @@ class NeuralNetwork {
     if (steps * actBatchSize < trainingData.shape[0]) {
       steps += 1;
     }
-    print("# Beginning training of network:");
+    print("# Beginning training of model:");
 
     for (int epoch = 0; epoch < epochs; epoch++) {
       // reset accumulated values
@@ -264,13 +305,15 @@ class NeuralNetwork {
     }
   }
 
-  /// Test a sequence of data in batches
-  void test({
+  /// Test a sequence of data in batches. This will return the
+  /// total accuracy after passing through all the steps.
+  double test({
     required Vector2 testingData,
     required Vector1 testingLabels,
     int? batchSize,
     int? printEveryStep,
   }) {
+    print("# Beggining tesing of model:");
     late int actBatchSize;
     if (batchSize == null) {
       actBatchSize = testingData.shape[0];
@@ -284,6 +327,8 @@ class NeuralNetwork {
     if (steps * actBatchSize < testingData.shape[0]) {
       steps += 1;
     }
+
+    double totalAccuracy = 0;
 
     for (int step = 0; step < steps; step++) {
       Vector2 batchData = testingData.subVector(
@@ -309,6 +354,7 @@ class NeuralNetwork {
         }
       }
       var accuracy = correct / batchLabels.length;
+      totalAccuracy += accuracy;
 
       if (printEveryStep != null &&
           (step % printEveryStep == 0 || step == steps - 1)) {
@@ -316,6 +362,9 @@ class NeuralNetwork {
             "validation, acc: ${accuracy.toStringAsPrecision(3)}, loss: ${loss.toStringAsPrecision(3)}");
       }
     }
+    double totalAcc = totalAccuracy / steps;
+    print("# [Total accuracy: ${(totalAcc * 100).toStringAsPrecision(4)}%]");
+    return totalAcc;
   }
 
   /// test a single data point against the network. This will
@@ -345,22 +394,36 @@ class NeuralNetwork {
     }
   }
 
+  List<double> getConfidenceSingle(List<double> data) {
+    var prediction = _forward(Vector2.from([data]));
+    List<double> preds = [];
+    for (num i in prediction[0]) {
+      preds.add(i.toDouble());
+    }
+    return preds;
+  }
+
   /// Save the model to a file. This file is encoded into json
   /// format then encoded and written to a file. This file can be
-  /// used as an input to `NeuralNetwork.fromFile()`
-  Future<bool> saveModel() async {
+  /// used as an input to `NeuralNetwork.fromFile()`. You can optionally
+  /// save the [accuracy] by setting the accuracy to reference later.
+  Future<bool> saveModel({double? accuracy}) async {
     try {
       String filename =
-          "/Users/jakelanders/code/flutter_nn/lib/models/${DateTime.now().millisecondsSinceEpoch}.json.gz";
+          "/Users/jakelanders/code/flutter_nn/lib/models/layers-${shape()}-loss[${lossFunction.name()}]-opt[${optimizer.name()}]-${DateTime.now().millisecondsSinceEpoch}.json.gz";
       List<Map<String, dynamic>> layerMaps = [];
       for (Layer layer in layers) {
         layerMaps.add(layer.toMap());
       }
       Map<String, dynamic> model = {
+        "date": DateTime.now().toString(),
         "layers": layerMaps,
         "lossFunction": lossFunction.name(),
         "optimizer": optimizer.toMap(),
       };
+      if (accuracy != null) {
+        model['accuracy'] = accuracy;
+      }
       // convert to json
       String json = jsonEncode(model);
       // encode to utf-8
@@ -377,5 +440,14 @@ class NeuralNetwork {
       print("There was an issue saving the model: $e\n$stacktrace");
       return false;
     }
+  }
+
+  List<int> shape() {
+    List<int> out = [];
+    for (var i in layers) {
+      out.add(i.weights.length);
+    }
+    out.add(layers.last.output![0].length);
+    return out;
   }
 }

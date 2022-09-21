@@ -65,9 +65,14 @@ class OptimizerSGD extends Optimizer {
   }
 
   @override
+  String name() {
+    return "sgd";
+  }
+
+  @override
   Map<String, dynamic> toMap() {
     return {
-      "name": "sgd",
+      "name": name(),
       "learningRate": learningRate,
       "currentLearningRate": currentLearningRate,
       "decay": decay,

@@ -19,6 +19,9 @@ abstract class Optimizer {
   /// To be called after all layers have been optimized
   void post();
 
+  // basic name
+  String name();
+
   /// to convert the optimizer to a map for json storage
   Map<String, dynamic> toMap();
 }

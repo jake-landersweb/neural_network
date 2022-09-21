@@ -65,9 +65,14 @@ class OptimizerRMSProp extends Optimizer {
   }
 
   @override
+  String name() {
+    return "rms";
+  }
+
+  @override
   Map<String, dynamic> toMap() {
     return {
-      "name": "rms",
+      "name": name(),
       "learningRate": learningRate,
       "currentLearningRate": currentLearningRate,
       "decay": decay,

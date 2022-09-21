@@ -91,9 +91,14 @@ class OptimizerAdam extends Optimizer {
   }
 
   @override
+  String name() {
+    return "adam";
+  }
+
+  @override
   Map<String, dynamic> toMap() {
     return {
-      "name": "adam",
+      "name": name(),
       "learningRate": learningRate,
       "currentLearningRate": currentLearningRate,
       "decay": decay,

@@ -57,9 +57,14 @@ class OptimizerAdaGrad extends Optimizer {
   }
 
   @override
+  String name() {
+    return "ada";
+  }
+
+  @override
   Map<String, dynamic> toMap() {
     return {
-      "name": "ada",
+      "name": name(),
       "learningRate": learningRate,
       "currentLearningRate": currentLearningRate,
       "decay": decay,
