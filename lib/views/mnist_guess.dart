@@ -23,7 +23,6 @@ class _MnistGuessState extends State<MnistGuess> {
   void initState() {
     _predictions = List.generate(10, (index) => 0);
     super.initState();
-
     init();
   }
 
@@ -42,15 +41,35 @@ class _MnistGuessState extends State<MnistGuess> {
       alignment: Alignment.center,
       children: [
         Center(
-          child: MediaQuery.of(context).size.width < 700
-              ? Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: _content(context, true),
-                )
-              : Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: _content(context, false),
-                ),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    "Neural network implemented in Dart with no packages. Visual representation in Flutter.",
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    "Check out the repository: ",
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 32),
+                  MediaQuery.of(context).size.width < 700
+                      ? Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: _content(context, true),
+                        )
+                      : Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: _content(context, false),
+                        ),
+                ],
+              ),
+            ),
+          ),
         ),
         if (_isLoading) const CircularProgressIndicator()
       ],
@@ -79,6 +98,7 @@ class _MnistGuessState extends State<MnistGuess> {
           ),
           padding: EdgeInsets.zero,
           shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
           children: [
             for (int i = 0; i < _predictions.length; i++)
               Center(
@@ -121,14 +141,14 @@ class _MnistGuessState extends State<MnistGuess> {
       });
     }
   }
-}
 
-/// static function for loading model inside an isolate
-Future<NeuralNetwork> _loadModel(String modelName) async {
-  ByteData bytes = await rootBundle.load("lib/models/$modelName");
-  final buffer = bytes.buffer;
-  List<int> compressed = buffer.asUint8List().toList();
-  // List<int> decompressed = gzip.decode(compressed);
-  String json = utf8.decode(compressed);
-  return NeuralNetwork.fromJson(json);
+  /// Loading model from modelName
+  Future<NeuralNetwork> _loadModel(String modelName) async {
+    ByteData bytes = await rootBundle.load("lib/models/$modelName");
+    final buffer = bytes.buffer;
+    List<int> compressed = buffer.asUint8List().toList();
+    // List<int> decompressed = gzip.decode(compressed);
+    String json = utf8.decode(compressed);
+    return NeuralNetwork.fromJson(json);
+  }
 }

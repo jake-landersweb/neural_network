@@ -14,7 +14,7 @@ class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: "Flutter Neural Network",
+      title: "Flutter NN",
       theme: ThemeData(
         scaffoldBackgroundColor: const Color.fromRGBO(47, 47, 57, 1),
         textTheme: const TextTheme(
@@ -54,7 +54,7 @@ class _AppState extends State<App> {
         ),
       ),
       debugShowCheckedModeBanner: false,
-      color: Colors.green,
+      color: themeColor,
       home: const Scaffold(
         // body: Index(),
         body: MnistGuess(),
