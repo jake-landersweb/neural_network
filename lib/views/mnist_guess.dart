@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
+// import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -28,7 +28,7 @@ class _MnistGuessState extends State<MnistGuess> {
   }
 
   void init() async {
-    String modelName = "1663837299820.json.gz";
+    String modelName = "mnist.json";
     NeuralNetwork nn = await _loadModel(modelName);
     setState(() {
       _nn = nn;
@@ -42,52 +42,67 @@ class _MnistGuessState extends State<MnistGuess> {
       alignment: Alignment.center,
       children: [
         Center(
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              DrawView(
-                gridSize: 28,
-                pixelSize: 10,
-                onDraw: (vals) {
-                  predict(vals);
-                },
-              ),
-              const SizedBox(width: 50),
-              SizedBox(
-                width: 300,
-                child: Column(
+          child: MediaQuery.of(context).size.width < 700
+              ? Column(
                   mainAxisSize: MainAxisSize.min,
-                  children: [
-                    for (int i = 0; i < _predictions.length; i++)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: Text(
-                          "$i: ${(_predictions[i] * 100).toStringAsPrecision(3)}%",
-                          style: TextStyle(
-                            fontSize: Vector1.from(_predictions).maxIndex() == i
-                                ? 22
-                                : 18,
-                            fontWeight:
-                                Vector1.from(_predictions).maxIndex() == i
-                                    ? FontWeight.w600
-                                    : FontWeight.w400,
-                            color: Colors.white.withOpacity(
-                              Vector1.from(_predictions).maxIndex() == i
-                                  ? 1
-                                  : 0.3,
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
+                  children: _content(context, true),
+                )
+              : Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: _content(context, false),
                 ),
-              ),
-            ],
-          ),
         ),
         if (_isLoading) const CircularProgressIndicator()
       ],
     );
+  }
+
+  List<Widget> _content(BuildContext context, bool isVerical) {
+    return [
+      DrawView(
+        gridSize: 28,
+        pixelSize:
+            (MediaQuery.of(context).size.width * (isVerical ? 0.9 : 0.5)) ~/ 28,
+        onDraw: (vals) {
+          predict(vals);
+        },
+      ),
+      MediaQuery.of(context).size.width < 700
+          ? const SizedBox(height: 16)
+          : const SizedBox(width: 50),
+      SizedBox(
+        width: 300,
+        child: GridView(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            childAspectRatio: 4,
+          ),
+          padding: EdgeInsets.zero,
+          shrinkWrap: true,
+          children: [
+            for (int i = 0; i < _predictions.length; i++)
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 0),
+                  child: Text(
+                    "$i: ${(_predictions[i] * 100).toStringAsPrecision(3)}%",
+                    style: TextStyle(
+                      fontSize:
+                          Vector1.from(_predictions).maxIndex() == i ? 22 : 18,
+                      fontWeight: Vector1.from(_predictions).maxIndex() == i
+                          ? FontWeight.w600
+                          : FontWeight.w400,
+                      color: Colors.white.withOpacity(
+                        Vector1.from(_predictions).maxIndex() == i ? 1 : 0.3,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    ];
   }
 
   void predict(List<List<double>> drawValues) async {
@@ -113,7 +128,7 @@ Future<NeuralNetwork> _loadModel(String modelName) async {
   ByteData bytes = await rootBundle.load("lib/models/$modelName");
   final buffer = bytes.buffer;
   List<int> compressed = buffer.asUint8List().toList();
-  List<int> decompressed = gzip.decode(compressed);
-  String json = utf8.decode(decompressed);
+  // List<int> decompressed = gzip.decode(compressed);
+  String json = utf8.decode(compressed);
   return NeuralNetwork.fromJson(json);
 }

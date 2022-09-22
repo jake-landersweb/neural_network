@@ -56,7 +56,8 @@ class _AppState extends State<App> {
       debugShowCheckedModeBanner: false,
       color: Colors.green,
       home: const Scaffold(
-        body: Index(),
+        // body: Index(),
+        body: MnistGuess(),
       ),
     );
   }

@@ -31,6 +31,6 @@ flutter:
   uses-material-design: true
 
   assets:
-    - lib/models/mnist.json.gz # can also use mnist2.json.gz, though it was trained with less data and epochs
+    - lib/models/mnist.json # can also use mnist2.json.gz, though it was trained with less data and epochs
     # - lib/datasets/raw_data/mnist/
     # - lib/datasets/generated_data/mnist/
