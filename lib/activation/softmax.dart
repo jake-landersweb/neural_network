@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:math';
 import 'package:flutter_nn/activation/root.dart';
 // import 'package:flutter_nn/utils/root.dart';

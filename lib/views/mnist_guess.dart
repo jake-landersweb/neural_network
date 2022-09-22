@@ -1,10 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_nn/main.dart';
+import 'package:flutter_nn/neural_network.dart';
 import 'package:flutter_nn/vector/root.dart';
 import 'package:flutter_nn/views/draw_view.dart';
 
@@ -18,25 +17,21 @@ class MnistGuess extends StatefulWidget {
 class _MnistGuessState extends State<MnistGuess> {
   bool _isLoading = true;
   List<double> _predictions = [];
-  NeuralNetwork? nn;
+  NeuralNetwork? _nn;
 
   @override
   void initState() {
     _predictions = List.generate(10, (index) => 0);
     super.initState();
 
-    loadModel();
+    init();
   }
 
-  void loadModel() async {
-    ByteData bytes = await rootBundle.load(
-        "lib/models/layers-[784, 1000, 10]-loss[cat_ce]-opt[adam]-1663724188699.json.gz");
-    final buffer = bytes.buffer;
-    List<int> compressed = buffer.asUint8List().toList();
-    List<int> decompressed = gzip.decode(compressed);
-    String json = utf8.decode(decompressed);
-    nn = NeuralNetwork.fromJson(json);
+  void init() async {
+    String modelName = "1663837299820.json.gz";
+    NeuralNetwork nn = await _loadModel(modelName);
     setState(() {
+      _nn = nn;
       _isLoading = false;
     });
   }
@@ -69,10 +64,19 @@ class _MnistGuessState extends State<MnistGuess> {
                         child: Text(
                           "$i: ${(_predictions[i] * 100).toStringAsPrecision(3)}%",
                           style: TextStyle(
-                              color: Colors.white.withOpacity(
-                                  Vector1.from(_predictions).maxIndex() == i
-                                      ? 1
-                                      : 0.3)),
+                            fontSize: Vector1.from(_predictions).maxIndex() == i
+                                ? 22
+                                : 18,
+                            fontWeight:
+                                Vector1.from(_predictions).maxIndex() == i
+                                    ? FontWeight.w600
+                                    : FontWeight.w400,
+                            color: Colors.white.withOpacity(
+                              Vector1.from(_predictions).maxIndex() == i
+                                  ? 1
+                                  : 0.3,
+                            ),
+                          ),
                         ),
                       ),
                   ],
@@ -87,19 +91,29 @@ class _MnistGuessState extends State<MnistGuess> {
   }
 
   void predict(List<List<double>> drawValues) async {
-    if (nn != null) {
+    if (_nn != null) {
       // flatten array
       List<double> flatten = [];
       for (List<double> i in drawValues) {
-        flatten.addAll(i);
+        for (var j in i) {
+          flatten.add(j);
+        }
       }
-      // spawn isolate to run prediciton through network
-      // List<double> predictions =
-      //     await compute(nn!.getConfidenceSingle, flatten);
-      List<double> predictions = nn!.getConfidenceSingle(flatten);
+      // get the prediction based on the flattened array
+      List<double> predictions = _nn!.getConfidenceSingle(flatten);
       setState(() {
         _predictions = predictions;
       });
     }
   }
+}
+
+/// static function for loading model inside an isolate
+Future<NeuralNetwork> _loadModel(String modelName) async {
+  ByteData bytes = await rootBundle.load("lib/models/$modelName");
+  final buffer = bytes.buffer;
+  List<int> compressed = buffer.asUint8List().toList();
+  List<int> decompressed = gzip.decode(compressed);
+  String json = utf8.decode(decompressed);
+  return NeuralNetwork.fromJson(json);
 }

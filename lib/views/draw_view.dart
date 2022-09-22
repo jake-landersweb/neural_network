@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
 
+/// Creates a drawable grid that will return the
+/// pixel values in the format of a [gridSize]x[gridSize]
+/// list of doubles corresponding to the opacity value
+/// of `Colors.white`. You can specify [millisecondUpdateDelay]
+/// to determine how often [onDraw] will be called. It is
+/// recommended to keep this value >100, otherwise there will
+/// be some considerable lag.
 class DrawView extends StatefulWidget {
   final int gridSize;
   final int pixelSize;
@@ -23,7 +30,7 @@ class DrawView extends StatefulWidget {
 class _DrawViewState extends State<DrawView> {
   final GlobalKey _widgetKey = GlobalKey();
 
-  late List<List<double>> _drawValues;
+  List<List<double>>? _drawValues;
   // canvas size and position on the screen
   Size? _canvasSize;
   Offset? _canvasOffset;
@@ -34,7 +41,9 @@ class _DrawViewState extends State<DrawView> {
   @override
   void initState() {
     // load all pixels to black
-    _resetCanvas();
+    _drawValues = List.generate(widget.gridSize,
+        (_) => List.generate(widget.gridSize, (_) => 0, growable: false),
+        growable: false);
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback(_getWidgetInfo);
@@ -43,17 +52,12 @@ class _DrawViewState extends State<DrawView> {
   void _getWidgetInfo(_) {
     final RenderBox renderBox =
         _widgetKey.currentContext?.findRenderObject() as RenderBox;
-    _widgetKey.currentContext?.size;
 
     final Size size = renderBox.size;
     _canvasSize = size;
-    print('Size: ${size.width}, ${size.height}');
 
     final Offset offset = renderBox.localToGlobal(Offset.zero);
     _canvasOffset = offset;
-    print('Offset: ${offset.dx}, ${offset.dy}');
-    print(
-        'Position: ${(offset.dx + size.width) / 2}, ${(offset.dy + size.height) / 2}');
   }
 
   @override
@@ -64,31 +68,40 @@ class _DrawViewState extends State<DrawView> {
         children: [
           GestureDetector(
             onPanUpdate: (details) {
-              _calculateIntersection(details.globalPosition);
+              if (_drawValues != null) {
+                _calculateIntersection(details.globalPosition);
+              }
             },
             onTapDown: (details) {
-              _calculateIntersection(details.globalPosition);
+              if (_drawValues != null) {
+                _calculateIntersection(details.globalPosition);
+              }
             },
             child: Center(
               child: Container(
                 color: widget.backgroundColor,
-                child: Row(
-                  key: _widgetKey,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    for (var i = 0; i < widget.gridSize; i++)
-                      Column(
+                child: _drawValues == null
+                    ? SizedBox(
+                        height: (widget.gridSize * widget.pixelSize).toDouble(),
+                        width: (widget.gridSize * widget.pixelSize).toDouble(),
+                      )
+                    : Column(
+                        key: _widgetKey,
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          for (var j = 0; j < widget.gridSize; j++)
-                            DrawCell(
-                              opacity: _drawValues[i][j],
-                              pixelSize: widget.pixelSize,
+                          for (var i = 0; i < widget.gridSize; i++)
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                for (var j = 0; j < widget.gridSize; j++)
+                                  DrawCell(
+                                    opacity: _drawValues![i][j],
+                                    pixelSize: widget.pixelSize,
+                                  ),
+                              ],
                             ),
                         ],
                       ),
-                  ],
-                ),
               ),
             ),
           ),
@@ -99,7 +112,7 @@ class _DrawViewState extends State<DrawView> {
                 _resetCanvas();
               });
             },
-            child: Text("Clear", style: TextStyle(color: Colors.white)),
+            child: const Text("Clear"),
           ),
         ],
       ),
@@ -114,8 +127,9 @@ class _DrawViewState extends State<DrawView> {
       var localX = drawPosition.dx - _canvasOffset!.dx;
       var localY = drawPosition.dy - _canvasOffset!.dy;
       // calculate what pixel this is based on pixel size
-      int pixelX = localX ~/ widget.pixelSize;
-      int pixelY = localY ~/ widget.pixelSize;
+      // flip the pixels to get the correct mapping for the mnist dataset
+      int pixelY = localX ~/ widget.pixelSize;
+      int pixelX = localY ~/ widget.pixelSize;
 
       // only update values when pan is within bounds
       if ((currentPixelX != pixelX || currentPixelY != pixelY) &&
@@ -125,22 +139,22 @@ class _DrawViewState extends State<DrawView> {
           pixelY < widget.gridSize) {
         // set pixel to white
         setState(() {
-          _drawValues[pixelX][pixelY] = 1;
+          _drawValues![pixelX][pixelY] = 1;
         });
         // add some opacity to surrounding pixels
         if (pixelX > 0 &&
             pixelX < (widget.gridSize - 1) &&
             pixelY > 0 &&
             pixelY < (widget.gridSize - 1)) {
-          if (_drawValues[pixelX - 1][pixelY] == 0) {
-            _drawValues[pixelX - 1][pixelY] = 0.3;
-          } else if (_drawValues[pixelX - 1][pixelY] == 0.3) {
-            _drawValues[pixelX - 1][pixelY] = 1;
+          if (_drawValues![pixelX - 1][pixelY] == 0) {
+            _drawValues![pixelX - 1][pixelY] = 0.3;
+          } else if (_drawValues![pixelX - 1][pixelY] == 0.3) {
+            _drawValues![pixelX - 1][pixelY] = 1;
           }
-          if (_drawValues[pixelX][pixelY - 1] == 0) {
-            _drawValues[pixelX][pixelY - 1] = 0.3;
-          } else if (_drawValues[pixelX][pixelY - 1] == 0.3) {
-            _drawValues[pixelX][pixelY - 1] = 1;
+          if (_drawValues![pixelX][pixelY - 1] == 0) {
+            _drawValues![pixelX][pixelY - 1] = 0.3;
+          } else if (_drawValues![pixelX][pixelY - 1] == 0.3) {
+            _drawValues![pixelX][pixelY - 1] = 1;
           }
           // update the state
           setState(() {});
@@ -152,7 +166,7 @@ class _DrawViewState extends State<DrawView> {
         if (DateTime.now().millisecondsSinceEpoch - _cachedEpoch >
             widget.millisecondUpdateDelay) {
           // send update to encapsulating view
-          widget.onDraw(_drawValues);
+          widget.onDraw(_drawValues!);
           _cachedEpoch = DateTime.now().millisecondsSinceEpoch;
         }
       }
@@ -162,7 +176,7 @@ class _DrawViewState extends State<DrawView> {
   void _resetCanvas() {
     _drawValues = List.generate(
         widget.gridSize, (_) => List.generate(widget.gridSize, (_) => 0));
-    widget.onDraw(_drawValues);
+    widget.onDraw(_drawValues!);
   }
 }
 

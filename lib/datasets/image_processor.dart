@@ -1,25 +1,23 @@
 import 'dart:math' as math;
 
+import 'package:flutter_nn/datasets/nnimage.dart';
 import 'package:flutter_nn/extra/tuple.dart';
-import 'package:flutter_nn/main.dart';
 
 // heavily pulled from https://github.com/SebLague/Neural-Network-Experiments/blob/main/Assets/Scripts/Data+Handling/ImageProcessor.cs
 class ImageProcessor {
-  List<double> transformImage(
-      List<double> original, TransformationSettings settings,
-      {int? seed = seed}) {
+  NNImage transformImage(NNImage original, TransformationSettings settings) {
     math.Random rng = math.Random();
-    List<double> transformedImage = List.from(original);
+    NNImage transformedImage = NNImage.from(original);
     if (settings.scale != 0) {
       Tuple2<double, double> iHat = Tuple2(
         v1: math.cos(settings.angle) / settings.scale,
         v2: math.sin(settings.angle) / settings.scale,
       );
       Tuple2<double, double> jHat = Tuple2(v1: -iHat.v2, v2: iHat.v1);
-      for (int y = 0; y < 28; y++) {
-        for (int x = 0; x < 28; x++) {
-          double u = x / (28 - 1);
-          double v = y / (28 - 1);
+      for (int y = 0; y < transformedImage.size; y++) {
+        for (int x = 0; x < transformedImage.size; x++) {
+          double u = x / (transformedImage.size - 1);
+          double v = y / (transformedImage.size - 1);
 
           double uTransformed = iHat.v1 * (u - 0.5) +
               jHat.v1 * (v - 0.5) +
@@ -34,7 +32,7 @@ class ImageProcessor {
           if (rng.nextDouble() <= settings.noiseProbability) {
             noiseValue = (rng.nextDouble() - 0.5) * settings.noiseStrength;
           }
-          transformedImage[getFlatIndex(transformedImage, x, y)] =
+          transformedImage.image[getFlatIndex(transformedImage, x, y)] =
               math.min(math.max(pixelValue + noiseValue, 0), 1);
         }
       }
@@ -42,25 +40,27 @@ class ImageProcessor {
     return transformedImage;
   }
 
-  double sample(List<double> image, double u, double v) {
+  double sample(NNImage image, double u, double v) {
     u = math.max(math.min(1, u), 0);
     v = math.max(math.min(1, v), 0);
 
-    double texX = u * (28 - 1);
-    double texY = v * (28 - 1);
+    double texX = u * (image.size - 1);
+    double texY = v * (image.size - 1);
 
     int indexLeft = texX.toInt();
     int indexBottom = texY.toInt();
-    int indexRight = math.min(indexLeft + 1, 28 - 1);
-    int indexTop = math.min(indexBottom + 1, 28 - 1);
+    int indexRight = math.min(indexLeft + 1, image.size - 1);
+    int indexTop = math.min(indexBottom + 1, image.size - 1);
 
     double blendX = texX - indexLeft;
     double blendY = texY - indexBottom;
 
-    double bottomLeft = image[getFlatIndex(image, indexLeft, indexBottom)];
-    double bottomRight = image[getFlatIndex(image, indexRight, indexBottom)];
-    double topLeft = image[getFlatIndex(image, indexLeft, indexTop)];
-    double topRight = image[getFlatIndex(image, indexRight, indexTop)];
+    double bottomLeft =
+        image.image[getFlatIndex(image, indexLeft, indexBottom)];
+    double bottomRight =
+        image.image[getFlatIndex(image, indexRight, indexBottom)];
+    double topLeft = image.image[getFlatIndex(image, indexLeft, indexTop)];
+    double topRight = image.image[getFlatIndex(image, indexRight, indexTop)];
 
     double valueBottom = bottomLeft + (bottomRight - bottomLeft) * blendX;
     double valueTop = topLeft + (topRight - topLeft) * blendX;
@@ -68,8 +68,8 @@ class ImageProcessor {
     return interpolatedValue;
   }
 
-  int getFlatIndex(List<double> image, int x, int y) {
-    return y * 28 + x;
+  int getFlatIndex(NNImage image, int x, int y) {
+    return y * image.size + x;
   }
 }
 
@@ -90,15 +90,16 @@ class TransformationSettings {
     required this.noiseStrength,
   });
 
-  TransformationSettings.random() {
+  TransformationSettings.random({int size = 28}) {
     math.Random rng = math.Random();
 
-    angle = rng.nextInt(50) / 100;
+    angle = rng.nextInt(30) / 100;
+    angle = rng.nextInt(30) / 100;
     if (rng.nextBool()) {
       angle = angle * -1;
     }
     scale = (rng.nextInt(50) / 100) + 0.7;
-    offset = Tuple2(v1: rng.nextInt(20) / 100, v2: rng.nextInt(20) / 100);
+    offset = Tuple2(v1: rng.nextInt(15) / 100, v2: rng.nextInt(15) / 100);
     if (rng.nextBool()) {
       offset.v1 = offset.v1 * -1;
     }
@@ -106,8 +107,10 @@ class TransformationSettings {
       offset.v2 = offset.v2 * -1;
     }
     noiseSeed = rng.nextInt(10000);
-    noiseProbability = rng.nextInt(30) / 100;
-    noiseStrength = rng.nextInt(40) / 100;
+    // noiseProbability = rng.nextInt(20) / 100;
+    // noiseStrength = rng.nextInt(35) / 100;
+    noiseProbability = 0;
+    noiseStrength = 0;
 
     // angle = randomInNormalDistribution(rng) * 0.15;
     // scale = 1 + randomInNormalDistribution(rng) * 0.1;
@@ -116,13 +119,13 @@ class TransformationSettings {
     // noiseProbability = math.min(rng.nextDouble(), rng.nextDouble()) * 0.05;
     // noiseStrength = math.min(rng.nextDouble(), rng.nextDouble());
 
-    // int boundsMinX = 28;
+    // int boundsMinX = size;
     // int boundsMaxX = 0;
-    // int boundsMinY = 28;
+    // int boundsMinY = size;
     // int boundsMaxY = 0;
 
-    // for (int y = 0; y < 28; y++) {
-    //   for (int x = 0; x < 28; x++) {
+    // for (int y = 0; y < size; y++) {
+    //   for (int x = 0; x < size; x++) {
     //     if (rng.nextBool()) {
     //       boundsMinX = math.min(boundsMinX, x);
     //       boundsMaxX = math.max(boundsMaxX, x);
@@ -132,10 +135,10 @@ class TransformationSettings {
     //   }
     // }
 
-    // double offsetMinX = -boundsMinX / 28;
-    // double offsetMaxX = (28 - boundsMaxX) / 28;
-    // double offsetMinY = -boundsMinY / 28;
-    // double offsetMaxY = (28 - boundsMaxY) / 28;
+    // double offsetMinX = -boundsMinX / size;
+    // double offsetMaxX = (size - boundsMaxX) / size;
+    // double offsetMinY = -boundsMinY / size;
+    // double offsetMaxY = (size - boundsMaxY) / size;
 
     // double offsetX = lerpDouble(offsetMinX, offsetMaxX, rng.nextDouble())!;
     // double offsetY = lerpDouble(offsetMinY, offsetMaxY, rng.nextDouble())!;

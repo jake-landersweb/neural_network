@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'root.dart';
 
 /// Returns the dot product of two vectors. When both vectors are

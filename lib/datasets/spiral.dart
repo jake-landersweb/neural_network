@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:flutter_nn/main.dart';
+import 'package:flutter_nn/constants.dart';
 
 class SpiralDataset {
   late List<List<double>> X;

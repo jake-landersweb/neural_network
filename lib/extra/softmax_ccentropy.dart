@@ -4,7 +4,8 @@ import 'package:flutter_nn/vector/root.dart';
 
 /// class to combine the functionality of the ActivationSoftmax
 /// class and the LossCategoricalCrossentropy into a single
-/// class to speed up computation.
+/// class to speed up computation. This speeds up computation
+/// in python, but there is not a noticable speed difference in dart
 class ActivationSoftmaxLossCategoricalCrossentropy {
   late final ActivationSoftMax activation;
   late final LossCategoricalCrossentropy lossfxn;

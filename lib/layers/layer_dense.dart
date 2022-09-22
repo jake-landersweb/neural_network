@@ -1,6 +1,6 @@
 import 'package:flutter_nn/activation/root.dart';
+import 'package:flutter_nn/constants.dart';
 import 'package:flutter_nn/layers/root.dart';
-import 'package:flutter_nn/main.dart';
 import 'package:flutter_nn/vector/root.dart';
 
 class LayerDense extends Layer {
@@ -21,6 +21,8 @@ class LayerDense extends Layer {
     this.weightRegL2 = weightRegL2;
     this.biasRegL1 = biasRegL1;
     this.biasRegL2 = biasRegL2;
+    inputSize = inputs;
+    numNeurons = neurons;
   }
 
   @override

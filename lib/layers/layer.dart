@@ -1,11 +1,12 @@
 import 'package:flutter_nn/activation/root.dart';
-import 'package:flutter_nn/extra/root.dart';
 import 'package:flutter_nn/vector/root.dart';
 
 abstract class Layer {
   late Vector2 weights;
   late Vector2 biases;
   late Activation activation;
+  late int inputSize;
+  late int numNeurons;
   Vector2? inputs;
   Vector2? output;
 
@@ -67,6 +68,24 @@ abstract class Layer {
       "weightRegL2": weightRegL2,
       "biasRegL1": biasRegL1,
       "biasRegL2": biasRegL2,
+    };
+  }
+
+  List<int> shape() {
+    return [inputSize, numNeurons];
+  }
+
+  /// Get comprehensive stats about the whole network
+  Map<String, dynamic> stats() {
+    return {
+      "activation": activation.name(),
+      "weightRegL1": weightRegL1,
+      "weightRegL2": weightRegL2,
+      "biasRegL1": biasRegL1,
+      "biasRegL2": biasRegL2,
+      "inputs": inputSize,
+      "neurons": numNeurons,
+      "shape": shape(),
     };
   }
 }
