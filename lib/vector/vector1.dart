@@ -4,6 +4,10 @@ import 'package:flutter_nn/main.dart';
 
 import 'root.dart';
 
+/// Implementation of [Vector] for a 1 dimensional array. Main
+/// features are the inclusion of vector arithmetic. This is one
+/// of the main objects passed into neural networks, as the arithmetic
+/// operators make calculations a lot easier.
 class Vector1 extends Vector<num> {
   /// Create a 1D vector with a size of [size] filled with [fill].
   Vector1(int size, {num fill = 0}) {
@@ -15,6 +19,7 @@ class Vector1 extends Vector<num> {
     val = List.from(list);
   }
 
+  /// Create a copy of the vector from the passed [Vector1].
   Vector1.fromVector(Vector1 vec) {
     val = List.from(vec.val);
   }
@@ -45,8 +50,13 @@ class Vector1 extends Vector<num> {
   @override
   String toString() => val.toString();
 
+  /// Get the mean of the vector. Calculated with
+  /// `sum() / length`
   num mean() => sum() / length;
 
+  /// Add all of the items in the Vector and return
+  /// as a [num]. [keepDims] currently does not do anything
+  /// when caluclating `sum()` for [Vector1].
   num sum({bool keepDims = true}) {
     num total = 0;
     for (var i in this) {
@@ -55,6 +65,7 @@ class Vector1 extends Vector<num> {
     return total;
   }
 
+  /// Return the max value of the vector
   num max() {
     num max = 0;
     for (var i in this) {
@@ -65,6 +76,7 @@ class Vector1 extends Vector<num> {
     return max;
   }
 
+  /// Return the min value of the vector
   num min() {
     num min = 100000;
     for (var i in this) {
@@ -75,6 +87,7 @@ class Vector1 extends Vector<num> {
     return min;
   }
 
+  /// Convert this [Vector1] into a [Vector2] of length 1.
   Vector2 toVector2() {
     Vector2 out = Vector2.empty();
     for (num i in this) {
@@ -118,6 +131,9 @@ class Vector1 extends Vector<num> {
     return out;
   }
 
+  /// Create a [Vector1] containing all of the values
+  /// returned by the [logic] function and return this
+  /// [Vector1].
   Vector1 replaceWhere(num Function(int index) logic) {
     Vector1 out = Vector1.like(this);
     for (int i = 0; i < length; i++) {
@@ -135,7 +151,7 @@ class Vector1 extends Vector<num> {
     return out;
   }
 
-  // take the natural log of all values
+  /// take the natural log of all values
   Vector1 log() {
     Vector1 out = Vector1.empty();
     for (var i in this) {

@@ -3,6 +3,12 @@ import 'package:flutter_nn/constants.dart';
 
 import 'root.dart';
 
+/// Implementation of [Vector] for a 2 dimensional array. Main
+/// features are the inclusion of vector arithmetic. This is one
+/// of the main objects passed into neural networks, as the arithmetic
+/// operators make calculations a lot easier. This implementation
+/// uses Vector1 as the list type in order to support multi-level
+/// arithmetic.
 class Vector2 extends Vector<Vector1> {
   Vector2 get T {
     List<List<num>> out = List.generate(this[0].length, (_) => []);
@@ -29,6 +35,7 @@ class Vector2 extends Vector<Vector1> {
     val = List.from([for (var i in list) Vector1.from(i)]);
   }
 
+  /// Generate copy of the passed [vec]
   Vector2.fromVector(Vector2 vec) {
     val = List.from([for (var i in vec.val) Vector1.fromVector(i)]);
   }
@@ -171,7 +178,25 @@ class Vector2 extends Vector<Vector1> {
     }
   }
 
-  @override
+  /// Caluclate the sum of the vector. You can specify the format you
+  /// would like the return values in by setting [axis] and [keepDims].
+  ///
+  /// If [axis] is null and [keepDims] is false:<br>
+  /// then the resulting value will be a [num].
+  ///
+  /// If [axis] is null and [keepDims] is true:<br>
+  /// the result will be a [Vector2] of shape [1,1].
+  ///
+  /// If [axis] is set to 0, then the sum will be calculated
+  /// on the transposed list. If it is 1, then the sum will be
+  /// calculated on the normal list.
+  ///
+  /// If [axis] is not null and [keepDims] is false:<br>
+  /// the result will be a [Vector1] containing a list of
+  /// the sums.
+  ///
+  /// if [axis] is not null and [keepDims] is true:<br>
+  /// the result will be a [Vector2] of shape [1, length]
   dynamic sum({int? axis, bool keepDims = false}) {
     if (axis == null) {
       num out = 0;
@@ -206,34 +231,6 @@ class Vector2 extends Vector<Vector1> {
         return out;
       }
     }
-
-    // if (keepDims) {
-    //   if (axis == 0) {
-    //     Vector1 temp = Vector1.empty();
-    //     for (Vector1 i in T) {
-    //       temp.add(i.sum());
-    //     }
-    //     Vector2 out = Vector2.from([temp.val]);
-    //     return out;
-    //   } else {
-    //     Vector2 out = Vector2.empty();
-    //     for (Vector1 i in this) {
-    //       out.add(Vector1.from([i.sum()]));
-    //     }
-    //     print(out.shape);
-    //     return out;
-    //   }
-    // } else {
-    //   Vector1 out = Vector1.empty();
-    //   for (Vector1 i in T) {
-    //     num v = 0;
-    //     for (var j in i) {
-    //       v += j;
-    //     }
-    //     out.add(v);
-    //   }
-    //   return out;
-    // }
   }
 
   /// Get absolute value of all nums in 2D vector
@@ -257,6 +254,7 @@ class Vector2 extends Vector<Vector1> {
     return out;
   }
 
+  /// Set all values in vector to the power of [value]
   Vector2 pow(num value) {
     Vector2 out = Vector2.fromVector(this);
 
@@ -268,6 +266,7 @@ class Vector2 extends Vector<Vector1> {
     return out;
   }
 
+  /// Set all values in vector to their square roots
   Vector2 sqrt() {
     Vector2 out = Vector2.fromVector(this);
 
@@ -279,8 +278,9 @@ class Vector2 extends Vector<Vector1> {
     return out;
   }
 
-  /// Return a vector where all values equal
-  /// the result from the [logic] function
+  /// Create a [Vector2] containing all of the values
+  /// returned by the [logic] function and return this
+  /// [Vector2].
   Vector2 replaceWhere(num Function(int i, int j) logic) {
     Vector2 out = Vector2.like(this);
     for (int i = 0; i < length; i++) {

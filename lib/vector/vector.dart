@@ -4,8 +4,6 @@ abstract class Vector<T> implements Iterable {
   /// list the vector is built around
   late List<T> val;
 
-  // custom get methods
-
   /// Get the size of the vector in an array. If the
   /// vector is [Vector1], the list will contain 1
   /// element of the length. If the vector is [Vector2],
@@ -39,10 +37,14 @@ abstract class Vector<T> implements Iterable {
   @override
   Type get runtimeType => Vector;
 
+  /// Add an item to the vector. Must match the list
+  /// type. [num] for [Vector1] and [Vector1] for [Vector2]
   void add(T value) {
     val.add(value);
   }
 
+  /// Add a list of values to the end of the vector.  Must match
+  /// the list type. [num] for [Vector1] and [Vector1] for [Vector2]
   void addAll(List<T> values) {
     val.addAll(values);
   }
@@ -57,6 +59,8 @@ abstract class Vector<T> implements Iterable {
     return false;
   }
 
+  /// Implemented in the same way as `List.subList(start, [int? end])`.
+  /// Requires the [start] index, and optionally takes an [end] index.
   Vector subVector(int start, [int? end]) {
     if (this is Vector1) {
       return Vector1.from(val.sublist(
@@ -246,220 +250,65 @@ abstract class Vector<T> implements Iterable {
 
   // operators
 
+  /// List comprehension
   T operator [](int index) => val[index];
   void operator []=(int index, T item) => val[index] = item;
 
+  /// Arithmetic can be performed on the vector. [other] can be of 3
+  /// different types: [Vector1], [Vector2], and [num]. On operators
+  /// that are not bi-directional, the workaround is to either
+  /// multiply the result by negative 1, or use the `replaceWhere`
+  /// method.
   Vector operator +(dynamic other) {
-    // check if other is of type num
-    if (other is num) {
-      if (this is Vector1) {
-        Vector1 out = Vector1.empty();
-        for (num i in val as List<num>) {
-          out.add(i + other);
-        }
-        return out;
-      } else if (this is Vector2) {
-        Vector2 out = Vector2.empty();
-        for (Vector1 i in this) {
-          Vector1 temp = Vector1.empty();
-          for (num j in i) {
-            temp.add(j + other);
-          }
-          out.add(temp);
-        }
-        return out;
-      } else {
-        throw "Vector is not of type Vector1 or Vector2";
-      }
-    }
-    // determine types of vectors to add
-    if (this is Vector1) {
-      if (other is Vector1) {
-        // both 1D
-        assert(
-          val.length == other.val.length,
-          "Both vectors need to be the same length",
-        );
-        Vector1 list = Vector1.empty();
-        for (var i = 0; i < val.length; i++) {
-          list.add((val[i] as num) + (other.val[i]));
-        }
-        return list;
-      } else {
-        // this is 1D, other is 2D
-        assert(
-          val.length == (other.val[0] as Vector1).length,
-          "The first vector's length needs to match the elements inside the second vector's length",
-        );
-        Vector2 list = Vector2.empty();
-        for (var i = 0; i < other.val.length; i++) {
-          Vector1 temp = Vector1.empty();
-          for (var j = 0; j < (other.val[i] as Vector1).length; j++) {
-            temp.add((val[j] as num) + other.val[i][j]);
-          }
-          list.add(temp);
-        }
-        return list;
-      }
-    } else if (this is Vector2) {
-      if (other is Vector1) {
-        // this is 2D, other is 1D
-        assert(
-          (val[0] as Vector1).length == other.val.length,
-          "The first vector item's length needs to match the second vector's length",
-        );
-        Vector2 list = Vector2.empty();
-        for (var i = 0; i < val.length; i++) {
-          Vector1 temp = Vector1.empty();
-          for (var j = 0; j < (val[i] as Vector1).length; j++) {
-            temp.add((other.val[j]) + (val[i] as Vector1)[j]);
-          }
-          list.add(temp);
-        }
-        return list;
-      } else {
-        // both 2D
-        // assert(
-        //   length == (other as Vector2).length,
-        //   "Both vectors need to be the same length",
-        // );
-        // assert(
-        //   (val[0] as Vector1).length == (other.val[0] as Vector1).length,
-        //   "The elements inside the vectors need to be the same length",
-        // );
-        Vector2 list = Vector2.empty();
-
-        for (var i = 0; i < val.length; i++) {
-          Vector1 temp = Vector1.empty();
-          for (var j = 0; j < (val[i] as Vector1).length; j++) {
-            if (other[0].length == 1) {
-              if (other.length == 1) {
-                temp.add((val[i] as Vector1)[j] + (other.val[0] as Vector1)[0]);
-              } else {
-                temp.add((val[i] as Vector1)[j] + (other.val[i] as Vector1)[0]);
-              }
-            } else {
-              if (other.length == 1) {
-                temp.add((val[i] as Vector1)[j] + (other.val[0] as Vector1)[j]);
-              } else {
-                temp.add((val[i] as Vector1)[j] + (other.val[i] as Vector1)[j]);
-              }
-            }
-          }
-          list.add(temp);
-        }
-        return list;
-      }
-    } else {
-      throw "Vector is not of type Vector1 or Vector2";
-    }
+    return _arithmetic(other, (x1, x2) => x1 + x2);
   }
 
+  /// Arithmetic can be performed on the vector. [other] can be of 3
+  /// different types: [Vector1], [Vector2], and [num]. On operators
+  /// that are not bi-directional, the workaround is to either
+  /// multiply the result by negative 1, or use the `replaceWhere`
+  /// method.
   Vector operator -(dynamic other) {
-    // check if other is of type num
-    if (other is num) {
-      if (this is Vector1) {
-        Vector1 out = Vector1.empty();
-        for (num i in val as List<num>) {
-          out.add(i - other);
-        }
-        return out;
-      } else if (this is Vector2) {
-        Vector2 out = Vector2.empty();
-        for (Vector1 i in this) {
-          Vector1 temp = Vector1.empty();
-          for (num j in i) {
-            temp.add(j - other);
-          }
-          out.add(temp);
-        }
-        return out;
-      } else {
-        throw "Vector is not of type Vector1 or Vector2";
-      }
-    }
-    // determine types of vectors to add
-    if (this is Vector1) {
-      if (other is Vector1) {
-        // both 1D
-        assert(
-          val.length == other.val.length,
-          "Both vectors need to be the same length",
-        );
-        Vector1 list = Vector1.empty();
-        for (var i = 0; i < val.length; i++) {
-          list.add((val[i] as num) - (other.val[i]));
-        }
-        return list;
-      } else {
-        // this is 1D, other is 2D
-        assert(
-          val.length == (other.val[0] as Vector1).length,
-          "The first vector's length needs to match the elements inside the second vector's length",
-        );
-        Vector2 list = Vector2.empty();
-        for (var i = 0; i < other.val.length; i++) {
-          Vector1 temp = Vector1.empty();
-          for (var j = 0; j < (other.val[i] as Vector1).length; j++) {
-            temp.add((val[j] as num) - other.val[i][j]);
-          }
-          list.add(temp);
-        }
-        return list;
-      }
-    } else {
-      if (other is Vector1) {
-        // this is 2D, other is 1D
-        assert(
-          (val[0] as Vector1).length == other.val.length,
-          "The first vector item's length needs to match the second vector's length",
-        );
-        Vector2 list = Vector2.empty();
-        for (var i = 0; i < val.length; i++) {
-          Vector1 temp = Vector1.empty();
-          for (var j = 0; j < (val[i] as Vector1).length; j++) {
-            temp.add((other.val[j]) - (val[i] as Vector1)[j]);
-          }
-          list.add(temp);
-        }
-        return list;
-      } else {
-        // both 2D
-        assert(
-          val.length == other.val.length,
-          "Both vectors need to be the same length",
-        );
-        Vector2 list = Vector2.empty();
-        for (var i = 0; i < val.length; i++) {
-          Vector1 temp = Vector1.empty();
-          for (var j = 0; j < (val[i] as Vector1).length; j++) {
-            if (other[0].length == 1) {
-              temp.add((val[i] as Vector1)[j] - (other.val[i] as Vector1)[0]);
-            } else {
-              temp.add((val[i] as Vector1)[j] - (other.val[i] as Vector1)[j]);
-            }
-          }
-          list.add(temp);
-        }
-        return list;
-      }
-    }
+    return _arithmetic(other, (x1, x2) => x1 - x2);
   }
 
+  /// Arithmetic can be performed on the vector. [other] can be of 3
+  /// different types: [Vector1], [Vector2], and [num]. On operators
+  /// that are not bi-directional, the workaround is to either
+  /// multiply the result by negative 1, or use the `replaceWhere`
+  /// method.
   Vector operator *(dynamic other) {
+    return _arithmetic(other, (x1, x2) => x1 * x2);
+  }
+
+  /// Arithmetic can be performed on the vector. [other] can be of 3
+  /// different types: [Vector1], [Vector2], and [num]. On operators
+  /// that are not bi-directional, the workaround is to either
+  /// multiply the result by negative 1, or use the `replaceWhere`
+  /// method.
+  Vector operator /(dynamic other) {
+    return _arithmetic(other, (x1, x2) => x1 / x2);
+  }
+
+  /// Arithmetic can be performed on the vector. [other] can be of 3
+  /// different types: [Vector1], [Vector2], and [num]. On operators
+  /// that are not bi-directional, the workaround is to either
+  /// multiply the result by negative 1, or use the `replaceWhere`
+  /// method.
+  Vector _arithmetic(dynamic other, num Function(num x1, num x2) arithmetic) {
     // check if other is of type num
     if (other is num) {
       if (this is Vector1) {
         Vector1 out = Vector1.empty();
         for (num i in val as List<num>) {
-          out.add(i * other);
+          out.add(arithmetic(i, other));
         }
         return out;
       } else if (this is Vector2) {
         Vector2 out = Vector2.fromVector(this as Vector2);
         for (var i = 0; i < length; i++) {
           for (var j = 0; j < out[i].length; j++) {
-            out[i][j] *= other;
+            out[i][j] = arithmetic(out[i][j], other);
           }
         }
         return out;
@@ -477,7 +326,7 @@ abstract class Vector<T> implements Iterable {
         );
         Vector1 list = Vector1.empty();
         for (var i = 0; i < val.length; i++) {
-          list.add((val[i] as num) * (other.val[i]));
+          list.add(arithmetic((val[i] as num), (other.val[i])));
         }
         return list;
       } else {
@@ -490,7 +339,7 @@ abstract class Vector<T> implements Iterable {
         for (var i = 0; i < other.val.length; i++) {
           Vector1 temp = Vector1.empty();
           for (var j = 0; j < (other.val[i] as Vector1).length; j++) {
-            temp.add((val[j] as num) * other.val[i][j]);
+            temp.add(arithmetic((val[j] as num), other.val[i][j]));
           }
           list.add(temp);
         }
@@ -507,116 +356,34 @@ abstract class Vector<T> implements Iterable {
         for (var i = 0; i < val.length; i++) {
           Vector1 temp = Vector1.empty();
           for (var j = 0; j < (val[i] as Vector1).length; j++) {
-            temp.add((other.val[j]) * (val[i] as Vector1)[j]);
+            temp.add(arithmetic((other.val[j]), (val[i] as Vector1)[j]));
           }
           list.add(temp);
         }
         return list;
       } else {
         // both 2D
-        assert(
-          val.length == other.val.length,
-          "Both vectors need to be the same length",
-        );
         Vector2 list = Vector2.empty();
-        for (var i = 0; i < val.length; i++) {
-          Vector1 temp = Vector1.empty();
-          for (var j = 0; j < (val[i] as Vector1).length; j++) {
-            if (other[0].length == 1) {
-              temp.add((val[i] as Vector1)[j] * (other.val[i] as Vector1)[0]);
-            } else {
-              temp.add((val[i] as Vector1)[j] * (other.val[i] as Vector1)[j]);
-            }
-          }
-          list.add(temp);
-        }
-        return list;
-      }
-    }
-  }
 
-  Vector operator /(dynamic other) {
-    // check if other is of type num
-    if (other is num) {
-      if (this is Vector1) {
-        Vector1 out = Vector1.empty();
-        for (num i in val as List<num>) {
-          out.add(i / other);
-        }
-        return out;
-      } else if (this is Vector2) {
-        Vector2 out = Vector2.empty();
-        for (Vector1 i in this) {
-          Vector1 temp = Vector1.empty();
-          for (num j in i) {
-            temp.add(j / other);
-          }
-          out.add(temp);
-        }
-        return out;
-      } else {
-        throw "Vector is not of type Vector1 or Vector2";
-      }
-    }
-    // determine types of vectors to add
-    if (this is Vector1) {
-      if (other is Vector1) {
-        // both 1D
-        assert(
-          val.length == other.val.length,
-          "Both vectors need to be the same length",
-        );
-        Vector1 list = Vector1.empty();
-        for (var i = 0; i < val.length; i++) {
-          list.add((val[i] as num) / (other.val[i]));
-        }
-        return list;
-      } else {
-        // this is 1D, other is 2D
-        assert(
-          val.length == (other.val[0] as Vector1).length,
-          "The first vector's length needs to match the elements inside the second vector's length",
-        );
-        Vector2 list = Vector2.empty();
-        for (var i = 0; i < other.val.length; i++) {
-          Vector1 temp = Vector1.empty();
-          for (var j = 0; j < (other.val[i] as Vector1).length; j++) {
-            temp.add((val[j] as num) / other.val[i][j]);
-          }
-          list.add(temp);
-        }
-        return list;
-      }
-    } else {
-      if (other is Vector1) {
-        // this is 2D, other is 1D
-        assert(
-          (val[0] as Vector1).length == other.val.length,
-          "The first vector item's length needs to match the second vector's length",
-        );
-        Vector2 list = Vector2.empty();
-        for (var i = 0; i < val.length; i++) {
-          Vector1 temp = Vector1.empty();
-          for (var j = 0; j < (val[i] as Vector1).length; j++) {
-            temp.add((val[i] as Vector1)[j] / (other.val[j]));
-          }
-          list.add(temp);
-        }
-        return list;
-      } else {
-        // both 2D
-        assert(
-          val.length == other.length,
-          "Both vectors need to be the same length",
-        );
-        Vector2 list = Vector2.empty();
         for (var i = 0; i < val.length; i++) {
           Vector1 temp = Vector1.empty();
           for (var j = 0; j < (val[i] as Vector1).length; j++) {
             if (other[0].length == 1) {
-              temp.add((val[i] as Vector1)[j] / (other.val[i] as Vector1)[0]);
+              if (other.length == 1) {
+                temp.add(arithmetic(
+                    (val[i] as Vector1)[j], (other.val[0] as Vector1)[0]));
+              } else {
+                temp.add(arithmetic(
+                    (val[i] as Vector1)[j], (other.val[i] as Vector1)[0]));
+              }
             } else {
-              temp.add((val[i] as Vector1)[j] / (other.val[i] as Vector1)[j]);
+              if (other.length == 1) {
+                temp.add(arithmetic(
+                    (val[i] as Vector1)[j], (other.val[0] as Vector1)[j]));
+              } else {
+                temp.add(arithmetic(
+                    (val[i] as Vector1)[j], (other.val[i] as Vector1)[j]));
+              }
             }
           }
           list.add(temp);

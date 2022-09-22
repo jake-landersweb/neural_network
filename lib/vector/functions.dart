@@ -94,6 +94,9 @@ Vector2 _max2D(num value, Vector2 vec) {
   return out;
 }
 
+/// Loops through all values in the vector and
+/// replaces the vector value with the passed value
+/// if the passed value is smaller.
 Vector minimum(num value, Vector vec) {
   if (vec is Vector1) {
     return _min1D(value, vec);
