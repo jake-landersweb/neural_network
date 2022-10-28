@@ -1,7 +1,8 @@
 import 'root.dart';
 
 abstract class Vector<T> implements Iterable {
-  /// list the vector is built around
+  /// Vector is a wrapper for a list of T
+  /// T can either be of type num or type Vector1
   late List<T> val;
 
   /// Get the size of the vector in an array. If the

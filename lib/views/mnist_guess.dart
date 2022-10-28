@@ -6,6 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_nn/neural_network.dart';
 import 'package:flutter_nn/vector/root.dart';
 import 'package:flutter_nn/views/draw_view.dart';
+import 'package:flutter_nn/views/root.dart';
+import 'dart:math' as math;
 
 class MnistGuess extends StatefulWidget {
   const MnistGuess({super.key});
@@ -33,96 +35,146 @@ class _MnistGuessState extends State<MnistGuess> {
       _nn = nn;
       _isLoading = false;
     });
+    debugPrint("Model loaded");
   }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Center(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text(
-                    "Neural network implemented in Dart with no packages. Visual representation in Flutter.",
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    "Check out the repository: ",
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 32),
-                  MediaQuery.of(context).size.width < 700
-                      ? Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: _content(context, true),
-                        )
-                      : Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: _content(context, false),
-                        ),
-                ],
-              ),
+    if (MediaQuery.of(context).size.width > 700) {
+      return _largeContent(context);
+    } else {
+      return _smallContent(context);
+    }
+  }
+
+  Widget _header(BuildContext context) {
+    return TextButton(
+      onPressed: () async {
+        await Clipboard.setData(
+          const ClipboardData(
+            text: "https://github.com/jake-landersweb/dart_nn",
+          ),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+            "Successfully copied repo link.",
+            style: TextStyle(
+              color: Colors.white,
             ),
           ),
-        ),
-        if (_isLoading) const CircularProgressIndicator()
-      ],
+          backgroundColor: Color.fromRGBO(65, 65, 160, 1),
+        ));
+      },
+      child: const Text(
+        "Check out the repository: https://github.com/jake-landersweb/dart_nn",
+        textAlign: TextAlign.center,
+      ),
     );
   }
 
-  List<Widget> _content(BuildContext context, bool isVerical) {
-    return [
-      DrawView(
-        gridSize: 28,
-        pixelSize:
-            (MediaQuery.of(context).size.width * (isVerical ? 0.9 : 0.5)) ~/ 28,
-        onDraw: (vals) {
-          predict(vals);
-        },
-      ),
-      MediaQuery.of(context).size.width < 700
-          ? const SizedBox(height: 16)
-          : const SizedBox(width: 50),
-      SizedBox(
-        width: 300,
-        child: GridView(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 4,
-          ),
-          padding: EdgeInsets.zero,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          children: [
-            for (int i = 0; i < _predictions.length; i++)
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 0),
-                  child: Text(
-                    "$i: ${(_predictions[i] * 100).toStringAsPrecision(3)}%",
-                    style: TextStyle(
-                      fontSize:
-                          Vector1.from(_predictions).maxIndex() == i ? 22 : 18,
-                      fontWeight: Vector1.from(_predictions).maxIndex() == i
-                          ? FontWeight.w600
-                          : FontWeight.w400,
-                      color: Colors.white.withOpacity(
-                        Vector1.from(_predictions).maxIndex() == i ? 1 : 0.3,
+  Widget _results(
+    BuildContext context, {
+    double maxWidth = double.infinity,
+    double maxHeight = double.infinity,
+  }) {
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: maxWidth, maxHeight: maxHeight),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (var i = 0; i < _predictions.length / 2; i++)
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (var j = i; j < i + 2; j++)
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      "${i + j}: ${(_predictions[i + j] * 100).toStringAsPrecision(3)}%",
+                      style: TextStyle(
+                        fontSize: Vector1.from(_predictions).maxIndex() == i + j
+                            ? 22
+                            : 18,
+                        fontWeight:
+                            Vector1.from(_predictions).maxIndex() == i + j
+                                ? FontWeight.w600
+                                : FontWeight.w400,
+                        color: Colors.white.withOpacity(
+                          Vector1.from(_predictions).maxIndex() == i + j
+                              ? 1
+                              : 0.3,
+                        ),
                       ),
                     ),
                   ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _largeContent(BuildContext context) {
+    return Center(
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _header(context),
+            Padding(
+              padding: const EdgeInsets.all(32),
+              child: Container(
+                color: Colors.black.withOpacity(0.1),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      height: math.min(
+                          MediaQuery.of(context).size.width * 0.5, 600),
+                      width: math.min(
+                          MediaQuery.of(context).size.width * 0.5, 600),
+                      // child: const NNPainer(),
+                      child: DrawView(
+                        onDraw: (val) => predict(val),
+                        pixelSize:
+                            MediaQuery.of(context).size.width * 0.35 ~/ 28,
+                      ),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: _results(context,
+                            maxWidth: MediaQuery.of(context).size.width * 0.4),
+                      ),
+                    ),
+                  ],
                 ),
               ),
+            ),
           ],
         ),
       ),
-    ];
+    );
+  }
+
+  Widget _smallContent(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 32.0),
+          child: _results(context, maxHeight: 300),
+        ),
+        Expanded(
+            child: DrawView(
+          onDraw: (val) => predict(val),
+          pixelSize: MediaQuery.of(context).size.height * 0.35 ~/ 28,
+        )),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(8, 8, 8, 50),
+          child: _header(context),
+        ),
+      ],
+    );
   }
 
   void predict(List<List<double>> drawValues) async {

@@ -68,11 +68,15 @@ class _DrawViewState extends State<DrawView> {
         children: [
           GestureDetector(
             onPanUpdate: (details) {
+              // recalculate the widget offset every draw point in case screen has moved
+              _getWidgetInfo("");
               if (_drawValues != null) {
                 _calculateIntersection(details.globalPosition);
               }
             },
             onTapDown: (details) {
+              // recalculate the widget offset every draw point in case screen has moved
+              _getWidgetInfo("");
               if (_drawValues != null) {
                 _calculateIntersection(details.globalPosition);
               }

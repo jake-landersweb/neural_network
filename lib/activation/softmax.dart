@@ -39,8 +39,6 @@ class ActivationSoftMax extends Activation {
       Vector1 temp = dot(jacobianMatrix, dvalues[i]) as Vector1;
       dinputs.add(temp);
     }
-    // TODO -- find where I need to reverse the sign. It should not be here
-    // this.dinputs = dinputs * -1 as Vector2;
     this.dinputs = dinputs;
   }
 
