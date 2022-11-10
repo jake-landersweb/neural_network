@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_nn/views/mnist_view.dart';
 import 'root.dart';
 
 class App extends StatefulWidget {
@@ -8,7 +9,7 @@ class App extends StatefulWidget {
   State<App> createState() => _AppState();
 }
 
-const themeColor = Color.fromRGBO(65, 65, 160, 1);
+const themeColor = Color.fromRGBO(137, 107, 255, 1);
 
 class _AppState extends State<App> {
   @override
@@ -16,7 +17,7 @@ class _AppState extends State<App> {
     return MaterialApp(
       title: "Flutter NN",
       theme: ThemeData(
-        scaffoldBackgroundColor: const Color.fromRGBO(47, 47, 57, 1),
+        scaffoldBackgroundColor: const Color.fromRGBO(14, 18, 25, 1),
         textTheme: const TextTheme(
           bodyText1: TextStyle(
             color: Color.fromRGBO(230, 230, 255, 1),
@@ -58,6 +59,7 @@ class _AppState extends State<App> {
       home: const Scaffold(
         // body: Index(),
         body: MnistGuess(),
+        // body: MnistView(),
       ),
     );
   }

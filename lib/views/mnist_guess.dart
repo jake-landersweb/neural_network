@@ -30,6 +30,7 @@ class _MnistGuessState extends State<MnistGuess> {
 
   void init() async {
     String modelName = "mnist.json";
+    // String modelName = "1668055892110.json";
     NeuralNetwork nn = await _loadModel(modelName);
     setState(() {
       _nn = nn;
@@ -40,7 +41,7 @@ class _MnistGuessState extends State<MnistGuess> {
 
   @override
   Widget build(BuildContext context) {
-    if (MediaQuery.of(context).size.width > 700) {
+    if (getSmallerSize(context) > 700) {
       return _largeContent(context);
     } else {
       return _smallContent(context);
@@ -124,27 +125,24 @@ class _MnistGuessState extends State<MnistGuess> {
             Padding(
               padding: const EdgeInsets.all(32),
               child: Container(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.white.withOpacity(0.05),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     SizedBox(
-                      height: math.min(
-                          MediaQuery.of(context).size.width * 0.5, 600),
-                      width: math.min(
-                          MediaQuery.of(context).size.width * 0.5, 600),
+                      height: getSmallerSize(context) * 0.8,
+                      width: getSmallerSize(context) * 0.8,
                       // child: const NNPainer(),
                       child: DrawView(
                         onDraw: (val) => predict(val),
-                        pixelSize:
-                            MediaQuery.of(context).size.width * 0.35 ~/ 28,
+                        pixelSize: getSmallerSize(context) * 0.7 ~/ 28,
                       ),
                     ),
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         child: _results(context,
-                            maxWidth: MediaQuery.of(context).size.width * 0.4),
+                            maxWidth: getSmallerSize(context) * 0.4),
                       ),
                     ),
                   ],
@@ -202,5 +200,11 @@ class _MnistGuessState extends State<MnistGuess> {
     // List<int> decompressed = gzip.decode(compressed);
     String json = utf8.decode(compressed);
     return NeuralNetwork.fromJson(json);
+  }
+
+  double getSmallerSize(BuildContext context) {
+    var height = MediaQuery.of(context).size.height;
+    var width = MediaQuery.of(context).size.width;
+    return height > width ? width : height;
   }
 }

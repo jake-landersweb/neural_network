@@ -37,7 +37,7 @@ class _MnistViewState extends State<MnistView> {
     print("# Successfully loaded mnist images");
     setState(() {
       _images = imgs;
-      _randomImage = NNImage.from(imgs[_index]).toDrawStyle();
+      _randomImage = NNImage.from(imgs[_index]).randomized();
     });
   }
 
@@ -60,11 +60,17 @@ class _MnistViewState extends State<MnistView> {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                NNImageView(image: _images![_index]),
+                NNImageView(
+                  image: _images![_index],
+                  pixelSize: 15,
+                ),
                 if (_randomImage != null)
                   Padding(
                     padding: const EdgeInsets.only(left: 16),
-                    child: NNImageView(image: _randomImage!),
+                    child: NNImageView(
+                      image: _randomImage!,
+                      pixelSize: 15,
+                    ),
                   ),
               ],
             ),
@@ -81,7 +87,7 @@ class _MnistViewState extends State<MnistView> {
                 const SizedBox(width: 16),
                 TextButton(
                   onPressed: () => setState(() {
-                    _randomImage = NNImage.from(_images![_index]).toDrawStyle();
+                    _randomImage = NNImage.from(_images![_index]).randomized();
                   }),
                   child: const Text("Randomize"),
                 ),

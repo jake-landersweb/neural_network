@@ -181,8 +181,10 @@ class NeuralNetwork {
 
         // print a summary
         if (printeveryStep != null && step % printeveryStep == 0) {
+          // print(
+          //     "step: ${step + 1}, acc: ${acc.toStringAsPrecision(3)}, loss: ${dataLoss.toStringAsPrecision(3)}, lr: ${optimizer.currentLearningRate.toStringAsPrecision(3)}");
           print(
-              "step: ${step + 1}, acc: ${acc.toStringAsPrecision(3)}, loss: ${dataLoss.toStringAsPrecision(3)}, lr: ${optimizer.currentLearningRate.toStringAsPrecision(3)}");
+              "${step + 1},${acc.toStringAsPrecision(3)},${dataLoss.toStringAsPrecision(3)},${optimizer.currentLearningRate.toStringAsPrecision(3)}");
         }
       }
 
@@ -191,8 +193,10 @@ class NeuralNetwork {
       var epochAcc = accuracy.calculateAccumulated();
       if (printEveryEpoch != null &&
           (epoch % printEveryEpoch == 0 || epoch == epochs - 1)) {
+        // print(
+        //     "# [epoch: ${epoch + 1}, acc: ${epochAcc.toStringAsPrecision(3)}, loss: ${epochLoss.toStringAsPrecision(3)}, lr: ${optimizer.currentLearningRate.toStringAsPrecision(3)}]");
         print(
-            "# [epoch: ${epoch + 1}, acc: ${epochAcc.toStringAsPrecision(3)}, loss: ${epochLoss.toStringAsPrecision(3)}, lr: ${optimizer.currentLearningRate.toStringAsPrecision(3)}]");
+            "${epoch + 1},${epochAcc.toStringAsPrecision(3)},${epochLoss.toStringAsPrecision(3)},${optimizer.currentLearningRate.toStringAsPrecision(3)}");
       }
     }
   }
@@ -272,8 +276,10 @@ class NeuralNetwork {
 
       if (printEveryStep != null &&
           (step % printEveryStep == 0 || step == steps - 1)) {
+        // print(
+        //     "validation, acc: ${accuracy.toStringAsPrecision(3)}, loss: ${loss.toStringAsPrecision(3)}");
         print(
-            "validation, acc: ${accuracy.toStringAsPrecision(3)}, loss: ${loss.toStringAsPrecision(3)}");
+            "${accuracy.toStringAsPrecision(3)},${loss.toStringAsPrecision(3)}");
       }
     }
     double totalAcc = totalAccuracy / steps;
@@ -326,7 +332,7 @@ class NeuralNetwork {
   /// save the [accuracy] by setting the accuracy to reference later.
   Future<bool> saveModel({double? accuracy}) async {
     try {
-      String modelPath = "/Users/jakelanders/code/flutter_nn/lib/models";
+      String modelPath = "/Users/jakelanders/code/dart_nn/lib/models";
       int millSinceEpoch = DateTime.now().millisecondsSinceEpoch;
       String filename = "$modelPath/$millSinceEpoch.json.gz";
       List<Map<String, dynamic>> layerMaps = [];
@@ -434,14 +440,14 @@ void mnist() async {
     seed: seed,
     dataset: "mnist",
     metadata:
-        "Model was generated with original, randomized, and original scaled to draw style. These lists were combined then shuffled",
+        "Model uses all of the mnist data variations, used to show how improvements in data prep can lower models performace in testing, but make it better at generalizing to actual hand written digits.",
   );
 
   // train the network
   nn.train(
     epochs: 2,
     printEveryEpoch: 1,
-    printeveryStep: 100,
+    printeveryStep: 50,
     trainingData: trainingData.v1,
     trainingLabels: trainingData.v2,
   );
@@ -463,7 +469,7 @@ void mnist() async {
 
   // test the network
   var totalAccuracy = nn.test(
-    printEveryStep: 100,
+    printEveryStep: 50,
     testingData: testingData.v1,
     testingLabels: testingData.v2,
   );
@@ -505,4 +511,53 @@ void spiralDataset() {
     testingLabels: Vector1.from(testingData.y),
     printEveryStep: 1,
   );
+}
+
+// USED FOR YOUTUBE VIDEO
+void mnist2() async {
+  var mnist = Mnist();
+
+  List<NNImage> trainingImages = await mnist.readTrain();
+
+  NeuralNetwork nn = NeuralNetwork(
+    layers: [
+      LayerDense(
+        trainingImages[0].image.length,
+        200,
+        activation: ActivationReLU(),
+        weightRegL2: 5e-4,
+        biasRegL2: 5e-4,
+      ),
+      LayerDense(200, 10, activation: ActivationSoftMax()),
+    ],
+    lossFunction: LossCategoricalCrossentropy(),
+    optimizer: OptimizerAdam(learningRate: 0.005, decay: 5e-4),
+    batchSize: 128,
+    seed: seed,
+    dataset: "mnist",
+    metadata:
+        "Used in the first part of youtube tutorial to show what the performance is like before image processing",
+  );
+
+  Tuple2<Vector2, Vector1> trainingData = imagesToVectors(trainingImages);
+
+  nn.train(
+    epochs: 2,
+    printEveryEpoch: 1,
+    printeveryStep: 50,
+    trainingData: trainingData.v1,
+    trainingLabels: trainingData.v2,
+  );
+
+  List<NNImage> testingImages = await mnist.readTest();
+
+  Tuple2<Vector2, Vector1> testingData = imagesToVectors(testingImages);
+
+  var totalAccuracy = nn.test(
+    printEveryStep: 50,
+    testingData: testingData.v1,
+    testingLabels: testingData.v2,
+  );
+
+  nn.saveModel(accuracy: totalAccuracy);
 }

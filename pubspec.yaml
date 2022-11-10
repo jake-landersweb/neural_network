@@ -32,5 +32,7 @@ flutter:
 
   assets:
     - lib/models/mnist.json # can also use mnist2.json.gz, though it was trained with less data and epochs
+    # - lib/models/1668055892110.json
+    # - lib/datasets/raw_data/mnist/mnist_test.csv
     # - lib/datasets/raw_data/mnist/
     # - lib/datasets/generated_data/mnist/

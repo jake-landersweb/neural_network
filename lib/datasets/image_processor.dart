@@ -107,10 +107,10 @@ class TransformationSettings {
       offset.v2 = offset.v2 * -1;
     }
     noiseSeed = rng.nextInt(10000);
-    // noiseProbability = rng.nextInt(20) / 100;
-    // noiseStrength = rng.nextInt(35) / 100;
-    noiseProbability = 0;
-    noiseStrength = 0;
+    noiseProbability = rng.nextInt(20) / 100;
+    noiseStrength = rng.nextInt(35) / 100;
+    // noiseProbability = 0;
+    // noiseStrength = 0;
 
     // angle = randomInNormalDistribution(rng) * 0.15;
     // scale = 1 + randomInNormalDistribution(rng) * 0.1;
