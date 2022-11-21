@@ -3,8 +3,8 @@
 
 // import 'package:flutter/material.dart';
 // import 'package:flutter/services.dart';
-// import 'package:flutter_nn/datasets/nnimage.dart';
-// import 'package:flutter_nn/views/root.dart';
+// import 'package:neural_network/datasets/nnimage.dart';
+// import 'package:neural_network/views/root.dart';
 // import 'package:path_provider/path_provider.dart';
 
 // /// draw characters and save the drawn characters

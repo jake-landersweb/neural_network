@@ -4,7 +4,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'dart:async';
 
-import 'package:flutter_nn/datasets/nnimage.dart';
+import 'package:neural_network/datasets/nnimage.dart';
 
 // data from: https://www.kaggle.com/datasets/oddrationale/mnist-in-csv?resource=download
 

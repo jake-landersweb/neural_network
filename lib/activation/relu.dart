@@ -1,5 +1,5 @@
-import 'package:flutter_nn/activation/root.dart';
-import 'package:flutter_nn/vector/root.dart';
+import 'package:neural_network/activation/root.dart';
+import 'package:neural_network/vector/root.dart';
 
 /// This is a very fast activation algorithm while still
 /// maintaining the ability to map non-linear functions

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_nn/views/mnist_view.dart';
+import 'package:neural_network/views/mnist_view.dart';
 import 'root.dart';
 
 class App extends StatefulWidget {

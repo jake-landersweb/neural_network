@@ -1,5 +1,5 @@
-import 'package:flutter_nn/neural_network.dart';
-import 'package:flutter_nn/views/root.dart';
+import 'package:neural_network/neural_network.dart';
+import 'package:neural_network/views/root.dart';
 import 'package:flutter/material.dart';
 
 void main() {

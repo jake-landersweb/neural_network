@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
-import 'package:flutter_nn/datasets/nnimage.dart';
-import 'package:flutter_nn/extra/tuple.dart';
+import 'package:neural_network/datasets/nnimage.dart';
+import 'package:neural_network/extra/tuple.dart';
 
 // heavily pulled from https://github.com/SebLague/Neural-Network-Experiments/blob/main/Assets/Scripts/Data+Handling/ImageProcessor.cs
 class ImageProcessor {

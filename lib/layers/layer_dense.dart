@@ -1,7 +1,7 @@
-import 'package:flutter_nn/activation/root.dart';
-import 'package:flutter_nn/constants.dart';
-import 'package:flutter_nn/layers/root.dart';
-import 'package:flutter_nn/vector/root.dart';
+import 'package:neural_network/activation/root.dart';
+import 'package:neural_network/constants.dart';
+import 'package:neural_network/layers/root.dart';
+import 'package:neural_network/vector/root.dart';
 
 class LayerDense extends Layer {
   LayerDense(

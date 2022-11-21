@@ -1,7 +1,7 @@
 import 'dart:math' as math;
-import 'package:flutter_nn/loss/root.dart';
-import 'package:flutter_nn/vector/vector2.dart';
-import 'package:flutter_nn/vector/vector1.dart';
+import 'package:neural_network/loss/root.dart';
+import 'package:neural_network/vector/vector2.dart';
+import 'package:neural_network/vector/vector1.dart';
 
 // TODO -- This probably does not work, verify this works in binary classififation
 class LossBinaryCrossentropy extends Loss {

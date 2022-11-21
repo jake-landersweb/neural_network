@@ -1,7 +1,7 @@
 import 'dart:math' as math;
-import 'package:flutter_nn/activation/root.dart';
-import 'package:flutter_nn/vector/root.dart';
-import 'package:flutter_nn/vector/vector2.dart';
+import 'package:neural_network/activation/root.dart';
+import 'package:neural_network/vector/root.dart';
+import 'package:neural_network/vector/vector2.dart';
 
 // TODO -- verify this works with binary classification
 class ActivationSigmoid extends Activation {

@@ -1,5 +1,5 @@
-import 'package:flutter_nn/activation/root.dart';
-import 'package:flutter_nn/vector/root.dart';
+import 'package:neural_network/activation/root.dart';
+import 'package:neural_network/vector/root.dart';
 
 abstract class Layer {
   late Vector2 weights;

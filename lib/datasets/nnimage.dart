@@ -1,6 +1,6 @@
-import 'package:flutter_nn/datasets/image_processor.dart';
-import 'package:flutter_nn/extra/tuple.dart';
-import 'package:flutter_nn/vector/root.dart';
+import 'package:neural_network/datasets/image_processor.dart';
+import 'package:neural_network/extra/tuple.dart';
+import 'package:neural_network/vector/root.dart';
 
 /// Wrapper to hold image data along with a label
 class NNImage {

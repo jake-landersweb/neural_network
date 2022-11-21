@@ -1,16 +1,16 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
-import 'package:flutter_nn/activation/root.dart';
-import 'package:flutter_nn/constants.dart';
-import 'package:flutter_nn/datasets/mnist.dart';
-import 'package:flutter_nn/datasets/nnimage.dart';
-import 'package:flutter_nn/datasets/spiral.dart';
-import 'package:flutter_nn/extra/root.dart';
-import 'package:flutter_nn/layers/root.dart';
-import 'package:flutter_nn/loss/root.dart';
-import 'package:flutter_nn/optimizer/root.dart';
-import 'package:flutter_nn/vector/root.dart';
+import 'package:neural_network/activation/root.dart';
+import 'package:neural_network/constants.dart';
+import 'package:neural_network/datasets/mnist.dart';
+import 'package:neural_network/datasets/nnimage.dart';
+import 'package:neural_network/datasets/spiral.dart';
+import 'package:neural_network/extra/root.dart';
+import 'package:neural_network/layers/root.dart';
+import 'package:neural_network/loss/root.dart';
+import 'package:neural_network/optimizer/root.dart';
+import 'package:neural_network/vector/root.dart';
 
 class NeuralNetwork {
   /// list of layers that the model will run through. The first

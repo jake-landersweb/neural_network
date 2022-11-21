@@ -1,6 +1,6 @@
-import 'package:flutter_nn/layers/root.dart';
-import 'package:flutter_nn/optimizer/optimizer.dart';
-import 'package:flutter_nn/vector/root.dart';
+import 'package:neural_network/layers/root.dart';
+import 'package:neural_network/optimizer/optimizer.dart';
+import 'package:neural_network/vector/root.dart';
 
 class OptimizerSGD extends Optimizer {
   late double momentum;

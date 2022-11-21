@@ -1,4 +1,4 @@
-import 'package:flutter_nn/layers/root.dart';
+import 'package:neural_network/layers/root.dart';
 
 abstract class Optimizer {
   late double learningRate;

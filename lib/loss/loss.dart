@@ -1,5 +1,5 @@
-import 'package:flutter_nn/layers/root.dart';
-import 'package:flutter_nn/vector/root.dart';
+import 'package:neural_network/layers/root.dart';
+import 'package:neural_network/vector/root.dart';
 
 abstract class Loss {
   Vector1? loss;

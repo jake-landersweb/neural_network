@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.landersweb" "\0"
-            VALUE "FileDescription", "flutter_nn" "\0"
+            VALUE "FileDescription", "neural_network" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "flutter_nn" "\0"
+            VALUE "InternalName", "neural_network" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2022 com.landersweb. All rights reserved." "\0"
-            VALUE "OriginalFilename", "flutter_nn.exe" "\0"
-            VALUE "ProductName", "flutter_nn" "\0"
+            VALUE "OriginalFilename", "neural_network.exe" "\0"
+            VALUE "ProductName", "neural_network" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

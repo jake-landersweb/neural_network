@@ -1,7 +1,7 @@
 import 'dart:math';
-import 'package:flutter_nn/activation/root.dart';
-// import 'package:flutter_nn/utils/root.dart';
-import 'package:flutter_nn/vector/root.dart';
+import 'package:neural_network/activation/root.dart';
+// import 'package:neural_network/utils/root.dart';
+import 'package:neural_network/vector/root.dart';
 
 /// output values will add up to 1. Useful for when
 /// want the network to output probabilities of what it

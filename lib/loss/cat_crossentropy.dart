@@ -1,6 +1,6 @@
 import 'dart:math' as math;
-import 'package:flutter_nn/loss/root.dart';
-import 'package:flutter_nn/vector/root.dart';
+import 'package:neural_network/loss/root.dart';
+import 'package:neural_network/vector/root.dart';
 
 /// To be used as the loss function for classification networks. These
 /// will usually end with an output layer using a softmax activation function.

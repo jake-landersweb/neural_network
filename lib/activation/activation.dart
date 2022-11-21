@@ -1,4 +1,4 @@
-import 'package:flutter_nn/vector/root.dart';
+import 'package:neural_network/vector/root.dart';
 
 abstract class Activation {
   Vector2? inputs;

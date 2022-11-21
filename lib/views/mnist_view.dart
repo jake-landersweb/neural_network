@@ -3,8 +3,8 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_nn/datasets/nnimage.dart';
-import 'package:flutter_nn/views/root.dart';
+import 'package:neural_network/datasets/nnimage.dart';
+import 'package:neural_network/views/root.dart';
 
 class MnistView extends StatefulWidget {
   const MnistView({super.key});
