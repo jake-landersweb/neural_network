@@ -1,0 +1,8 @@
+version: "Apple Swift version 5.7 (swiftlang-5.7.0.127.4 clang-1400.0.29.50)"
+options: "ad0ad360a950b174e01af6b2a27768f6667868d8a13caf3c0de03cba53a29bc5"
+build_start_time: [1669057755, 576045036]
+build_end_time: [1669057757, 971723079]
+inputs:
+  "/Users/jakelanders/code/dart_nn/macos/Flutter/GeneratedPluginRegistrant.swift": [1669057743, 221096038]
+  "/Users/jakelanders/code/dart_nn/macos/Runner/AppDelegate.swift": [1654880800, 0]
+  "/Users/jakelanders/code/dart_nn/macos/Runner/MainFlutterWindow.swift": [1654880800, 0]

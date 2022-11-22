@@ -1,0 +1,2 @@
+*.gz
+!mnist.json.gz
