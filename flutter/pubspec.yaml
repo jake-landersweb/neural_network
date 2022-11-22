@@ -34,4 +34,4 @@ flutter:
   uses-material-design: true
 
   assets:
-    - ../neural_network/models/mnist2.json.gz
+    - lib/models/mnist2.json

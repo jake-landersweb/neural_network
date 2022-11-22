@@ -1,12 +1,8 @@
 import 'dart:convert';
-import 'dart:io';
-// import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_neural_network/views/draw_view.dart';
 import 'package:flutter_neural_network/views/root.dart';
 import 'package:neural_network/network/network.dart';
-import 'dart:math' as math;
 import 'package:universal_html/html.dart' as html;
 
 import 'package:neural_network/network/utils.dart';
@@ -30,7 +26,7 @@ class _MnistGuessState extends State<MnistGuess> {
   }
 
   void init() async {
-    String filename = "../neural_network/models/mnist2.json.gz";
+    String filename = "lib/models/mnist2.json";
     Network nn = await _loadModel(filename);
     setState(() {
       _nn = nn;
@@ -239,8 +235,8 @@ class _MnistGuessState extends State<MnistGuess> {
     ByteData bytes = await rootBundle.load(filename);
     final buffer = bytes.buffer;
     List<int> compressed = buffer.asUint8List().toList();
-    List<int> decompressed = gzip.decode(compressed);
-    String json = utf8.decode(decompressed);
+    // List<int> decompressed = gzip.decode(compressed);
+    String json = utf8.decode(compressed);
     return Network.fromJson(json);
   }
 
