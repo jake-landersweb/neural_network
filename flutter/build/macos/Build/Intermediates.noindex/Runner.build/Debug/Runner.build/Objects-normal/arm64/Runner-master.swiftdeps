@@ -1,8 +1,0 @@
-version: "Apple Swift version 5.7 (swiftlang-5.7.0.127.4 clang-1400.0.29.50)"
-options: "fa865109073e0d5b06f67007f9250cda0f6ae825f5d4833e1d5d7e59b4a5c9da"
-build_start_time: [1669107871, 211656093]
-build_end_time: [1669107872, 207020998]
-inputs:
-  "/Users/jakelanders/code/neural_network/flutter/macos/Flutter/GeneratedPluginRegistrant.swift": [1669107866, 719208478]
-  "/Users/jakelanders/code/neural_network/flutter/macos/Runner/AppDelegate.swift": [1654880800, 0]
-  "/Users/jakelanders/code/neural_network/flutter/macos/Runner/MainFlutterWindow.swift": [1654880800, 0]
