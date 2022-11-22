@@ -38,4 +38,6 @@ class CategoricalCrossentropy {
     return dvalues
         .replaceWhere((i, j) => (-oneHot[i][j] / dvalues[i][j]) / samples);
   }
+
+  String name() => "categorical_crossentropy";
 }

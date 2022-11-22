@@ -1,6 +1,5 @@
 import 'dart:math' as math;
-import 'package:neural_network/old/constants.dart';
-import 'package:neural_network/old/main.dart';
+import 'package:flutter_neural_network/old/constants.dart';
 
 import 'root.dart';
 

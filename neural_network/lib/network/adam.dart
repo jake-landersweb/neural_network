@@ -1,8 +1,9 @@
 import 'package:neural_network/network/layer.dart';
+import 'package:neural_network/network/optimizer.dart';
 import 'utils.dart';
 import 'dart:math' as math;
 
-class Adam {
+class Adam extends Optimizer {
   late double learningRate;
   late double currentLearningRate;
   late double decay;
@@ -22,12 +23,24 @@ class Adam {
     iterations = 0;
   }
 
+  Adam.fromMap(Map<String, dynamic> map) {
+    learningRate = map['learningRate'];
+    currentLearningRate = map['currentLearningRate'];
+    decay = map['decay'];
+    iterations = map['iterations'];
+    epsilon = map['epsilon'];
+    beta1 = map['beta1'];
+    beta2 = map['beta2'];
+  }
+
+  @override
   void pre() {
     if (decay != 0) {
       currentLearningRate = learningRate * (1 / (1 + decay * iterations));
     }
   }
 
+  @override
   void update(Layer layer) {
     // init momentum and cache values
     layer.weightMomentums ??= List.generate(layer.weights.length,
@@ -79,7 +92,21 @@ class Adam {
             (math.sqrt(biasCacheCorrected[i]) + epsilon)));
   }
 
+  @override
   void post() {
     iterations += 1;
+  }
+
+  @override
+  Map<String, dynamic> toMap() {
+    return {
+      "learningRate": learningRate,
+      "currentLearningRate": currentLearningRate,
+      "decay": decay,
+      "iterations": iterations,
+      "epsilon": epsilon,
+      "beta1": beta1,
+      "beta2": beta2,
+    };
   }
 }

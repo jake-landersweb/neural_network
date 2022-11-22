@@ -1,7 +1,13 @@
+import 'dart:async';
+
 import 'package:neural_network/network/activation.dart';
+import 'package:neural_network/network/relu.dart';
+import 'package:neural_network/network/root.dart';
 import 'package:neural_network/network/utils.dart';
 
 class Layer {
+  late int inputSize;
+  late int neuronSize;
   late List<List<double>> weights;
   // neuron values
   late List<double> bias;
@@ -36,8 +42,39 @@ class Layer {
     this.weightRegL2 = 0,
     this.biasRegL2 = 0,
   }) {
+    inputSize = inputs;
+    neuronSize = neurons;
     weights = randomList2D(inputs, neurons, seed: seed);
     bias = List.generate(neurons, (index) => 0);
+  }
+
+  Layer.fromMap(Map<String, dynamic> map) {
+    weights = [];
+    for (var i in map['weights']) {
+      weights.add([for (var j in i) j]);
+    }
+    bias = [];
+    for (var i in map['bias']) {
+      bias.add(i is int ? i.toDouble() : i);
+    }
+    switch (map['activation']) {
+      case "relu":
+        activation = ReLU();
+        break;
+      case "softmax":
+        activation = Softmax();
+        break;
+      default:
+        print("Unknown activation function: ${map['activation']}");
+    }
+    weightRegL2 = map['weightRegL2'] is int
+        ? map['weightRegL2'].toDouble()
+        : map['weightRegL2'];
+    biasRegL2 = map['biasRegL2'] is int
+        ? map['biasRegL2'].toDouble()
+        : map['biasRegL2'];
+    inputSize = map['inputSize'];
+    neuronSize = map['neuronSize'];
   }
 
   void forward(List<List<double>> inputs) {
@@ -70,5 +107,33 @@ class Layer {
 
     // gradient on values
     dinputs = activation.dinputs!.dot2D(weights.T);
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      "weights": weights,
+      "bias": bias,
+      "activation": activation.name(),
+      "weightRegL2": weightRegL2,
+      "biasRegL2": biasRegL2,
+      "inputSize": inputSize,
+      "neuronSize": neuronSize,
+    };
+  }
+
+  List<int> shape() {
+    return [inputSize, neuronSize];
+  }
+
+  /// Get comprehensive stats about the whole network
+  Map<String, dynamic> stats() {
+    return {
+      "activation": activation.name(),
+      "weightRegL2": weightRegL2,
+      "biasRegL2": biasRegL2,
+      "inputs": inputSize,
+      "neurons": neuronSize,
+      "shape": shape(),
+    };
   }
 }

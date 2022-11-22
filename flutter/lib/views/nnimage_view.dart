@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:neural_network/datasets/nnimage.dart';
+import 'package:flutter_neural_network/old/datasets/nnimage.dart';
 
 /// takes an NNImage and renders it in a
 /// [size]x[size] grid. Optionally, you can specify

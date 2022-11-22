@@ -1,16 +1,16 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
-import 'package:neural_network/old/activation/root.dart';
-import 'package:neural_network/old/constants.dart';
-import 'package:neural_network/old/datasets/mnist.dart';
-import 'package:neural_network/old/datasets/nnimage.dart';
-import 'package:neural_network/old/datasets/spiral.dart';
-import 'package:neural_network/old/extra/root.dart';
-import 'package:neural_network/old/layers/root.dart';
-import 'package:neural_network/old/loss/root.dart';
-import 'package:neural_network/old/optimizer/root.dart';
-import 'package:neural_network/old/vector/root.dart';
+import 'package:flutter_neural_network/old/activation/root.dart';
+import 'package:flutter_neural_network/old/constants.dart';
+import 'package:flutter_neural_network/old/datasets/mnist.dart';
+import 'package:flutter_neural_network/old/datasets/nnimage.dart';
+import 'package:flutter_neural_network/old/datasets/spiral.dart';
+import 'package:flutter_neural_network/old/extra/root.dart';
+import 'package:flutter_neural_network/old/layers/root.dart';
+import 'package:flutter_neural_network/old/loss/root.dart';
+import 'package:flutter_neural_network/old/optimizer/root.dart';
+import 'package:flutter_neural_network/old/vector/root.dart';
 
 class NeuralNetwork {
   /// list of layers that the model will run through. The first
@@ -402,11 +402,6 @@ class NeuralNetwork {
 void mnist() async {
   var mnist = Mnist();
 
-  // get generated images
-  List<NNImage> generatedImages = await mnist.readGenerated();
-  // randomize the images
-  generatedImages.shuffle();
-
   // get training images
   List<NNImage> t1 = await mnist.readTrain();
   List<NNImage> t2 = await mnist.readTrainRandom();
@@ -416,9 +411,6 @@ void mnist() async {
   trainingImages.addAll(t2);
   trainingImages.addAll(t3);
   trainingImages.shuffle();
-
-  // add first 800 generated images
-  trainingImages.addAll(generatedImages.sublist(0, 800));
 
   // convert images into vectors
   Tuple2<Vector2, Vector1> trainingData = imagesToVectors(trainingImages);
@@ -460,9 +452,6 @@ void mnist() async {
   testingImages.addAll(tt1);
   testingImages.addAll(tt2);
   testingImages.addAll(tt3);
-
-  // add last 200 generated images
-  testingImages.addAll(generatedImages.sublist(800, 1000));
 
   // convert images to vectors
   Tuple2<Vector2, Vector1> testingData = imagesToVectors(testingImages);

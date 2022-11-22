@@ -1,7 +1,7 @@
-import 'package:neural_network/old/activation/root.dart';
-import 'package:neural_network/old/constants.dart';
-import 'package:neural_network/old/layers/root.dart';
-import 'package:neural_network/old/vector/root.dart';
+import 'package:flutter_neural_network/old/activation/root.dart';
+import 'package:flutter_neural_network/old/constants.dart';
+import 'package:flutter_neural_network/old/layers/root.dart';
+import 'package:flutter_neural_network/old/vector/root.dart';
 
 class LayerDense extends Layer {
   LayerDense(
@@ -70,8 +70,6 @@ class LayerDense extends Layer {
         "The elements inside of inputs need to be of the same length as the weights");
     // save the inputs for backprop
     this.inputs = inputs;
-    // run forward pass
-    // output = (dot(inputs, weights) + biases) as Vector2;
 
     // send though activation function
     activation.forward((dot(inputs, weights) + biases) as Vector2);

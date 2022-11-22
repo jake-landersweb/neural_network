@@ -1,7 +1,7 @@
 import 'dart:math' as math;
-import 'package:neural_network/old/layers/root.dart';
-import 'package:neural_network/old/optimizer/optimizer.dart';
-import 'package:neural_network/old/vector/root.dart';
+import 'package:flutter_neural_network/old/layers/root.dart';
+import 'package:flutter_neural_network/old/optimizer/optimizer.dart';
+import 'package:flutter_neural_network/old/vector/root.dart';
 
 class OptimizerAdam extends Optimizer {
   late double epsilon;

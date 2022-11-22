@@ -1,8 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:neural_network/network/image_processor.dart';
+import 'package:neural_network/network/nnimage.dart';
 import 'package:neural_network/network/utils.dart';
 
-Future<Tuple<List<int>, List<List<double>>>> readData(String filename) async {
+Future<List<NNImage>> readData(
+  String filename, {
+  NNImage Function(NNImage image)? modification,
+}) async {
   // read file as stream because of file size
   final file = File(filename);
   Stream<String> lines = file
@@ -11,8 +16,7 @@ Future<Tuple<List<int>, List<List<double>>>> readData(String filename) async {
       .transform(const LineSplitter());
 
   int lineCount = 0;
-  List<int> labels = [];
-  List<List<double>> images = [];
+  List<NNImage> images = [];
 
   await for (var line in lines) {
     // ignore first line because it is a header line
@@ -20,7 +24,7 @@ Future<Tuple<List<int>, List<List<double>>>> readData(String filename) async {
       // split by ',' because of csv
       List<String> values = line.split(",");
       // label is the first value in the file
-      labels.add(int.parse(values[0]));
+      var label = int.parse(values[0]);
       // if the label failed to parse for whatever reason just ignore it
       List<double> image = [];
       // get each image as a flat array of size 28*28
@@ -28,9 +32,13 @@ Future<Tuple<List<int>, List<List<double>>>> readData(String filename) async {
         // scale all pixel values between 0 and 1
         image.add(int.parse(values[i + 1]).toDouble() / 255);
       }
-      images.add(image);
+      if (modification == null) {
+        images.add(NNImage(image: image, label: label, size: 28));
+      } else {
+        images.add(modification(NNImage(image: image, label: label, size: 28)));
+      }
     }
     lineCount++;
   }
-  return Tuple(v1: labels, v2: images);
+  return images;
 }

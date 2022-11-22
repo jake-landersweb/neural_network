@@ -1,6 +1,6 @@
 import 'dart:math' as math;
-import 'package:neural_network/old/loss/root.dart';
-import 'package:neural_network/old/vector/root.dart';
+import 'package:flutter_neural_network/old/loss/root.dart';
+import 'package:flutter_neural_network/old/vector/root.dart';
 
 /// To be used as the loss function for classification networks. These
 /// will usually end with an output layer using a softmax activation function.
@@ -33,7 +33,6 @@ class LossCategoricalCrossentropy extends Loss {
     }
     Vector2 dinputs = ((yTrueOneHot * -1) / dvalues) as Vector2;
     dinputs = (dinputs / samples) as Vector2;
-    print(dinputs);
     this.dinputs = dinputs;
   }
 

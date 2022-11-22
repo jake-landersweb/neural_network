@@ -1,4 +1,4 @@
-import 'package:neural_network/old/vector/root.dart';
+import 'package:flutter_neural_network/old/vector/root.dart';
 
 class Accuracy {
   num accumulatedSum = 0;

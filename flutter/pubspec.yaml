@@ -1,4 +1,4 @@
-name: neural_network
+name: flutter_neural_network
 description: Neural network implemented in Dart, interactable in Flutter
 
 
@@ -12,7 +12,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  # path_provider: ^2.0.11 # for saving models to Documents
+  neural_network:
+    path: ../neural_network
+  universal_html: ^2.0.8
+
 
   cupertino_icons: ^1.0.2
 
@@ -30,9 +33,5 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
-  # assets:
-    # - lib/models/mnist.json # can also use mnist2.json.gz, though it was trained with less data and epochs
-    # - lib/models/1668055892110.json
-    # - lib/datasets/raw_data/mnist/mnist_test.csv
-    # - lib/datasets/raw_data/mnist/
-    # - lib/datasets/generated_data/mnist/
+  assets:
+    - ../neural_network/models/mnist2.json.gz

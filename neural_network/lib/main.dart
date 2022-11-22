@@ -1,5 +1,5 @@
-import 'package:neural_network/network.dart';
+import 'package:neural_network/network/network.dart';
 
 void main() {
-  mnist();
+  mnist2();
 }

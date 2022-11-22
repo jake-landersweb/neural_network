@@ -1,6 +1,6 @@
-import 'package:neural_network/old/layers/root.dart';
-import 'package:neural_network/old/optimizer/root.dart';
-import 'package:neural_network/old/vector/root.dart';
+import 'package:flutter_neural_network/old/layers/root.dart';
+import 'package:flutter_neural_network/old/optimizer/root.dart';
+import 'package:flutter_neural_network/old/vector/root.dart';
 
 /// This optimizer needs a SMALL learning rate. The default
 /// used in most frameworks is 0.001

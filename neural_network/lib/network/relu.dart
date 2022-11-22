@@ -15,4 +15,7 @@ class ReLU extends Activation {
     dinputs =
         dvalues.replaceWhere((i, j) => inputs![i][j] < 0 ? 0 : dinputs![i][j]);
   }
+
+  @override
+  String name() => "relu";
 }

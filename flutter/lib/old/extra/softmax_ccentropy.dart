@@ -1,6 +1,6 @@
-import 'package:neural_network/old/activation/root.dart';
-import 'package:neural_network/old/loss/root.dart';
-import 'package:neural_network/old/vector/root.dart';
+import 'package:flutter_neural_network/old/activation/root.dart';
+import 'package:flutter_neural_network/old/loss/root.dart';
+import 'package:flutter_neural_network/old/vector/root.dart';
 
 /// class to combine the functionality of the ActivationSoftmax
 /// class and the LossCategoricalCrossentropy into a single

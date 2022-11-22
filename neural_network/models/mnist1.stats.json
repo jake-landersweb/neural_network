@@ -1,0 +1,65 @@
+{
+    "date": "2022-11-21 23:49:02.058917",
+    "dataset": "all_data",
+    "shape": [
+        [
+            784,
+            128
+        ],
+        [
+            128,
+            64
+        ],
+        [
+            64,
+            10
+        ]
+    ],
+    "layers": [
+        {
+            "activation": "relu",
+            "weightRegL2": 0.0005,
+            "biasRegL2": 0.0005,
+            "inputs": 784,
+            "neurons": 128,
+            "shape": [
+                784,
+                128
+            ]
+        },
+        {
+            "activation": "relu",
+            "weightRegL2": 0.0005,
+            "biasRegL2": 0.0005,
+            "inputs": 128,
+            "neurons": 64,
+            "shape": [
+                128,
+                64
+            ]
+        },
+        {
+            "activation": "softmax",
+            "weightRegL2": 0.0,
+            "biasRegL2": 0.0,
+            "inputs": 64,
+            "neurons": 10,
+            "shape": [
+                64,
+                10
+            ]
+        }
+    ],
+    "accuracy": 0.9285761589404176,
+    "lossFunction": "categorical_crossentropy",
+    "optimizer": {
+        "learningRate": 0.005,
+        "currentLearningRate": 0.002626740215392698,
+        "decay": 0.0005,
+        "iterations": 1808,
+        "epsilon": 1e-7,
+        "beta1": 0.9,
+        "beta2": 0.999
+    },
+    "about": "Reworked network data, reg, randomized, draw style, and hand drawn all shuffled and trained on network"
+}

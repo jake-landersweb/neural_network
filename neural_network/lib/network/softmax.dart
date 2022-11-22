@@ -35,4 +35,7 @@ class Softmax extends Activation {
     }
     this.dinputs = dinputs;
   }
+
+  @override
+  String name() => "softmax";
 }

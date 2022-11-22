@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:neural_network/old/constants.dart';
+import 'package:flutter_neural_network/old/constants.dart';
 
 class SpiralDataset {
   late List<List<double>> X;

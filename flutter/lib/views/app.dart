@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:neural_network/views/mnist_view.dart';
+import 'package:flutter_neural_network/views/mnist_view.dart';
 import 'root.dart';
 
 class App extends StatefulWidget {
@@ -10,6 +10,7 @@ class App extends StatefulWidget {
 }
 
 const themeColor = Color.fromRGBO(137, 107, 255, 1);
+const backgroundAcc = Color.fromRGBO(20, 25, 32, 1);
 
 class _AppState extends State<App> {
   @override
