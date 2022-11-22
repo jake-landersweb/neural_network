@@ -1,4 +1,5 @@
 abstract class Activation {
+  List<List<double>>? inputs;
   List<List<double>>? outputs;
   List<List<double>>? dinputs;
 

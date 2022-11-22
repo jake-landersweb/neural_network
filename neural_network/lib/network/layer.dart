@@ -37,7 +37,7 @@ class Layer {
     this.biasRegL2 = 0,
   }) {
     weights = randomList2D(inputs, neurons, seed: seed);
-    bias = randomList1D(neurons, seed: seed);
+    bias = List.generate(neurons, (index) => 0);
   }
 
   void forward(List<List<double>> inputs) {

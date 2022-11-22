@@ -14,7 +14,7 @@ class Mnist {
   Future<List<NNImage>> readTrain() async {
     print("Loading mnist training data ...");
     var data = await _readData(
-        "/Users/jakelanders/code/dart_nn/lib/datasets/raw_data/mnist/mnist_train.csv");
+        "/Users/jakelanders/code/neural_network/data/mnist_train.csv");
     print("Done fetching mnist training data.");
     return data;
   }
@@ -22,7 +22,7 @@ class Mnist {
   Future<List<NNImage>> readTest() async {
     print("Loading mnist testing data ...");
     var data = await _readData(
-        "/Users/jakelanders/code/dart_nn/lib/datasets/raw_data/mnist/mnist_test.csv");
+        "/Users/jakelanders/code/neural_network/data/mnist_test.csv");
     print("Done fetching mnist testing data.");
     return data;
   }
@@ -30,7 +30,7 @@ class Mnist {
   Future<List<NNImage>> readTrainRandom() async {
     print("Loading mnist training data randomized ...");
     var data = await _readDataRandom(
-        "/Users/jakelanders/code/dart_nn/lib/datasets/raw_data/mnist/mnist_train.csv");
+        "/Users/jakelanders/code/neural_network/data/mnist_train.csv");
     print("Done fetching mnist training data.");
     return data;
   }
@@ -38,7 +38,7 @@ class Mnist {
   Future<List<NNImage>> readTestRandom() async {
     print("Loading mnist testing data randomized ...");
     var data = await _readDataRandom(
-        "/Users/jakelanders/code/dart_nn/lib/datasets/raw_data/mnist/mnist_test.csv");
+        "/Users/jakelanders/code/neural_network/data/mnist_test.csv");
     print("Done fetching mnist testing data.");
     return data;
   }
@@ -46,7 +46,7 @@ class Mnist {
   Future<List<NNImage>> readTrainToDrawStyle() async {
     print("Loading mnist training data to draw style ...");
     var data = await _readDataToDrawStyle(
-        "/Users/jakelanders/code/dart_nn/lib/datasets/raw_data/mnist/mnist_train.csv");
+        "/Users/jakelanders/code/neural_network/data/mnist_train.csv");
     print("Done fetching mnist training draw style data.");
     return data;
   }
@@ -54,16 +54,8 @@ class Mnist {
   Future<List<NNImage>> readTestRandomToDrawStyle() async {
     print("Loading mnist testing data to draw style ...");
     var data = await _readDataToDrawStyle(
-        "/Users/jakelanders/code/dart_nn/lib/datasets/raw_data/mnist/mnist_test.csv");
+        "/Users/jakelanders/code/neural_network/data/mnist_test.csv");
     print("Done fetching mnist testing draw style data.");
-    return data;
-  }
-
-  Future<List<NNImage>> readGenerated() async {
-    print("Loading generated mnist data ...");
-    var data = await _readData(
-        "/Users/jakelanders/code/dart_nn/lib/datasets/generated_data/mnist/dataset-707.csv");
-    print("Done fetching generated mnist data");
     return data;
   }
 

@@ -35,14 +35,7 @@ class CategoricalCrossentropy {
     for (var i = 0; i < dvalues.length; i++) {
       oneHot.add(eyeTemp[yTrue[i]]);
     }
-    List<List<double>> dinputs = [];
-    for (var i = 0; i < dvalues.length; i++) {
-      List<double> temp = [];
-      for (var j = 0; j < dvalues[i].length; j++) {
-        temp.add(-oneHot[i][j] / dvalues[i][j]);
-      }
-      dinputs.add(temp);
-    }
-    return dinputs.replaceWhere((i, j) => dinputs[i][j] / samples);
+    return dvalues
+        .replaceWhere((i, j) => (-oneHot[i][j] / dvalues[i][j]) / samples);
   }
 }

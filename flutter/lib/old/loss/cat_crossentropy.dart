@@ -33,7 +33,7 @@ class LossCategoricalCrossentropy extends Loss {
     }
     Vector2 dinputs = ((yTrueOneHot * -1) / dvalues) as Vector2;
     dinputs = (dinputs / samples) as Vector2;
-
+    print(dinputs);
     this.dinputs = dinputs;
   }
 
