@@ -99,8 +99,9 @@ class Network {
         }
         optimizer.post();
 
-        if (step % 100 == 0) {
-          print("EPOCH: ${epoch + 1} STEP: $step LOSS: $loss, ACC: $accuracy");
+        if (step % 30 == 0) {
+          // print("EPOCH: ${epoch + 1} STEP: $step LOSS: $loss, ACC: $accuracy");
+          print("${epoch + 1},$step,$loss,$accuracy");
         }
       }
     }
@@ -148,9 +149,10 @@ class Network {
       }
       var accuracy = correct / batchLabels.length;
 
-      if (step % 10 == 0) {
-        print(
-            "TEST - STEP: $step LOSS: $loss, ACC: $accuracy TOTAL ACC: ${accSum / step}");
+      if (step % 30 == 0) {
+        // print(
+        //     "TEST - STEP: $step LOSS: $loss, ACC: $accuracy TOTAL ACC: ${accSum / step}");
+        print("$step,$loss,$accuracy,${accSum / step}");
       }
       accSum += accuracy;
     }
@@ -341,5 +343,5 @@ void mnist2() async {
   network.test(testData.v1, testData.v2);
 
   await network.save(
-      "Reworked network data, reg, randomized, draw style, and hand drawn all shuffled and trained on network");
+      "All available data, used to show post-optimized network for youtube");
 }

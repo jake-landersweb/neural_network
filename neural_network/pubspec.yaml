@@ -9,6 +9,9 @@ environment:
 # dependencies:
 #   path: ^1.8.0
 
+assets:
+  
+
 dev_dependencies:
   lints: ^2.0.0
   test: ^1.16.0

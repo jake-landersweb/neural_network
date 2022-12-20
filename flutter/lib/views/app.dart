@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_neural_network/views/mnist_view.dart';
+import 'package:flutter_neural_network/views/network_visual/root.dart';
 import 'root.dart';
 
 class App extends StatefulWidget {
@@ -59,8 +60,9 @@ class _AppState extends State<App> {
       color: themeColor,
       home: const Scaffold(
         // body: Index(),
-        body: MnistGuess(),
+        // body: MnistGuess(),
         // body: MnistView(),
+        body: NetworkVisual(),
       ),
     );
   }
